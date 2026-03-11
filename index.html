@@ -23,12 +23,12 @@
 <body>
   <div id="root"></div>
 
-  <!-- Firebase compat SDK (carrega de forma síncrona, sem timing issues) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase v9 compat (loads synchronously before React) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script>
     try {
-      const app = firebase.initializeApp({
+      firebase.initializeApp({
         apiKey: "AIzaSyDpn8PRl5oQQcEeocMue6jxWzSjMQP-shg",
         authDomain: "caroninhas-2cb0b.firebaseapp.com",
         projectId: "caroninhas-2cb0b",
@@ -37,11 +37,9 @@
         appId: "1:803353452902:web:d2d146472c8d2f76f4a8a7"
       });
       window.__db = firebase.firestore();
-      window.__firebaseReady = true;
-      window.dispatchEvent(new Event("firebaseReady"));
+      console.log("[caronas] Firebase initialized OK");
     } catch(e) {
-      console.warn("Firebase init failed:", e);
-      window.dispatchEvent(new Event("firebaseReady"));
+      console.error("[caronas] Firebase init FAILED:", e);
     }
   </script>
 
@@ -101,13 +99,37 @@
     //  STORAGE
     // ═══════════════════════════════════════════
     async function loadData() {
+      if (window.__db) {
+        try {
+          console.log("[caronas] Loading from Firestore...");
+          const snap = await window.__db.collection("caronas").doc(KEY).get();
+          if (snap.exists) {
+            const data = snap.data().payload;
+            console.log("[caronas] Firestore OK, trips:", data.trips?.length);
+            localStorage.setItem(KEY, JSON.stringify(data));
+            return data;
+          }
+          console.log("[caronas] No Firestore doc yet");
+        } catch(e) { console.error("[caronas] Firestore load ERROR:", e); }
+      } else {
+        console.warn("[caronas] Firebase not ready");
+      }
       try {
-        const r = await window.storage.get(KEY);
-        return r ? JSON.parse(r.value) : null;
+        const raw = localStorage.getItem(KEY);
+        if (raw) console.log("[caronas] Using localStorage fallback");
+        return raw ? JSON.parse(raw) : null;
       } catch { return null; }
     }
     async function saveData(d) {
-      try { await window.storage.set(KEY, JSON.stringify(d)); } catch {}
+      try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
+      if (window.__db) {
+        try {
+          await window.__db.collection("caronas").doc(KEY).set({ payload: d });
+          console.log("[caronas] Saved to Firestore OK");
+        } catch(e) { console.error("[caronas] Firestore save ERROR:", e); }
+      } else {
+        console.warn("[caronas] Firebase not ready — saved only to localStorage");
+      }
     }
     
     // ═══════════════════════════════════════════
@@ -2033,6 +2055,9 @@
             <div style={{ ...cardS, textAlign: "center" }}>
               <div style={{ color: C.muted, fontSize: 12 }}>Caronas Mogi ↔ Campinas</div>
               <div style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>v1.0 · Preço por trecho: {R(PRICE)}</div>
+              <div style={{ marginTop: 8, fontSize: 11, color: window.__db ? C.green : C.red }}>
+                {window.__db ? "☁️ Firebase conectado" : "⚠️ Firebase offline — dados só neste dispositivo"}
+              </div>
             </div>
           </div>
           <div style={{ height: 20 }} />
