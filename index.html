@@ -2107,17 +2107,84 @@
     }
     
     // ═══════════════════════════════════════════
+    //  LOCK SCREEN
+    // ═══════════════════════════════════════════
+    const APP_PASS = "103467";
+    const LOCK_KEY = "caroninhas-unlocked";
+    
+    function LockScreen({ onUnlock }) {
+      const [val, setVal] = useState("");
+      const [err, setErr] = useState(false);
+      const [shake, setShake] = useState(false);
+    
+      const tryUnlock = () => {
+        if (val === APP_PASS) {
+          localStorage.setItem(LOCK_KEY, "1");
+          onUnlock();
+        } else {
+          setErr(true);
+          setShake(true);
+          setVal("");
+          setTimeout(() => setShake(false), 500);
+        }
+      };
+    
+      const handleKey = (e) => { if (e.key === "Enter") tryUnlock(); };
+    
+      return (
+        <div style={{ background: C.bg, height: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "Barlow, sans-serif", padding: 32 }}>
+          <style>{GCSS}</style>
+          <style>{`@keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }`}</style>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>🚗</div>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text, marginBottom: 6 }}>Caroninhas</div>
+          <div style={{ color: C.muted, fontSize: 13, marginBottom: 36 }}>Mogi Guaçu ↔ Campinas</div>
+          <div style={{ width: "100%", maxWidth: 280, animation: shake ? "shake 0.4s ease" : "none" }}>
+            <input
+              type="password"
+              value={val}
+              onChange={e => { setVal(e.target.value); setErr(false); }}
+              onKeyDown={handleKey}
+              placeholder="Senha"
+              autoFocus
+              style={{
+                width: "100%", background: C.card,
+                border: `1px solid ${err ? C.red : C.border}`,
+                borderRadius: 12, padding: "14px 18px",
+                color: C.text, fontSize: 18, outline: "none",
+                textAlign: "center", letterSpacing: 6,
+                fontFamily: "Barlow, sans-serif",
+              }}
+            />
+            {err && <div style={{ color: C.red, fontSize: 12, textAlign: "center", marginTop: 8 }}>Senha incorreta</div>}
+            <button onClick={tryUnlock} style={{
+              marginTop: 14, width: "100%",
+              background: C.amber, color: "#000", border: "none",
+              borderRadius: 12, padding: "14px 0",
+              fontSize: 15, fontWeight: 700, cursor: "pointer",
+              fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1, textTransform: "uppercase",
+            }}>
+              Entrar
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    // ═══════════════════════════════════════════
     //  APP ROOT
     // ═══════════════════════════════════════════
     function App() {
+      const [unlocked, setUnlocked] = useState(() => localStorage.getItem(LOCK_KEY) === "1");
       const [st, setSt] = useState(null);
       const [tab, setTab] = useState("home");
     
       useEffect(() => {
-        loadData().then(d => setSt(d || INIT));
-      }, []);
+        if (unlocked) loadData().then(d => setSt(d || INIT));
+      }, [unlocked]);
     
       const upd = (newSt) => { setSt(newSt); saveData(newSt); };
+    
+      if (!unlocked) return <LockScreen onUnlock={() => setUnlocked(true)} />;
     
       if (!st) return (
         <div style={{ background: C.bg, height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Barlow, sans-serif" }}>
