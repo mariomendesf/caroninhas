@@ -302,7 +302,7 @@
         home_empty: "No trips this week",
         add_back: "← Back", add_title: "Register Trip",
         add_date: "Date", add_leg: "Stretch",
-        add_leg_there: "There →", add_leg_back: "← Back", add_leg_both: "Round Trip",
+        add_leg_there: "Departure →", add_leg_back: "← Return", add_leg_both: "Round Trip",
         add_leg_both_note: (v) => `↑ Counts as 2 stretches = ${v}`,
         add_role: "You were...", add_passenger: "🪑 I was a passenger", add_driver: "🚗 I was the driver",
         add_who_drove: "Who drove?", add_other_driver: "Other (type name)",
@@ -507,7 +507,7 @@
       return Math.floor(diff / (7 * 24 * 3600 * 1000)) + 1;
     }
     const DIR_PT = { ida: "Ida →", volta: "← Volta", ambas: "Ida e Volta" };
-    const DIR_EN = { ida: "There →", volta: "← Back", ambas: "Round Trip" };
+    const DIR_EN = { ida: "Departure →", volta: "← Return", ambas: "Round Trip" };
     function DIR(lang) { return lang === "en" ? DIR_EN : DIR_PT; }
     
     // ═══════════════════════════════════════════
@@ -947,7 +947,7 @@
     // ═══════════════════════════════════════════
     //  TRIP CARD
     // ═══════════════════════════════════════════
-    function TripCard({ trip, st, upd, showDelete, weekDn }) {
+    function TripCard({ trip, st, upd, showDelete, weekDn, readOnly }) {
       const lang = st?.lang || "pt";
       const t = mkT(lang);
       const [open, setOpen] = useState(false);
@@ -1018,7 +1018,7 @@
               })()}
               <div style={{ color: C.muted, fontSize: 11, flexShrink: 0, paddingLeft: 4 }}>{open ? "▲" : "▼"}</div>
             </div>
-            {open && (
+            {open && !readOnly && (
               <div style={editBar}>
                 {/* Date editor */}
                 <div style={{ marginBottom: 10 }}>
@@ -1102,18 +1102,22 @@
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {/* Date editor */}
                 <div style={{ marginBottom: 2 }}>
-                  {!editingDate ? (
+                  {!readOnly && !editingDate && (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 12, color: C.muted }}>📅 {fmtFull(trip.date)}</span>
                       <button onClick={() => { setDateVal(trip.date); setEditingDate(true); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", padding: 0, fontFamily: "Barlow, sans-serif" }}>{t("trip_edit_date")}</button>
                     </div>
-                  ) : (
+                  )}
+                  {!readOnly && editingDate && (
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                       <input type="date" value={dateVal} onChange={e => setDateVal(e.target.value)}
                         style={{ flex: 1, background: C.dim, border: `1px solid ${C.amber}55`, borderRadius: 8, padding: "7px 10px", color: C.text, fontSize: 13, outline: "none", fontFamily: "Barlow, sans-serif" }} />
                       <button onClick={saveDate} style={{ background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, borderRadius: 7, padding: "7px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>OK</button>
                       <button onClick={() => setEditingDate(false)} style={{ background: C.dim, border: `1px solid ${C.border}`, color: C.muted, borderRadius: 7, padding: "7px 10px", fontSize: 12, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>✕</button>
                     </div>
+                  )}
+                  {readOnly && (
+                    <span style={{ fontSize: 12, color: C.muted }}>📅 {fmtFull(trip.date)}</span>
                   )}
                 </div>
                 {pax.map(p => {
@@ -1129,7 +1133,7 @@
                           <span style={{ color: p.paid ? C.green : C.muted, fontSize: 10 }}>{R(paxPrice(p) * pm)}</span>
                         </div>
                       </div>
-                      {(() => {
+                      {!readOnly && (() => {
                         const pCancelled = !p.paid && isCancelledByRide(p.driverId);
                         if (pCancelled) {
                           return (
@@ -1150,17 +1154,22 @@
                           </button>
                         );
                       })()}
+                      {readOnly && (
+                        <span style={{ fontSize: 11, color: p.paid ? C.green : C.muted, flexShrink: 0 }}>
+                          {p.paid ? t("received_label_short") : t("trip_pending_label")}
+                        </span>
+                      )}
                     </div>
                   );
                 })}
-                {showDelete && (
+                {!readOnly && showDelete && (
                   <button onClick={deleteTrip} style={{ marginTop: 4, background: C.redDim, border: `1px solid ${C.red}44`, color: C.red, borderRadius: 8, padding: "8px 0", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif", width: "100%" }}>
                     {t("trip_delete")}
                   </button>
                 )}
               </div>
-              {trip.role === "motorista" && <CarCostEditor trip={trip} st={st} upd={upd} />}
-              <div style={{ fontSize: 11, color: C.muted, marginTop: 10 }}>{lang === "en" ? "Tap any status again to undo." : "Toque novamente em qualquer status para desfazer."}</div>
+              {!readOnly && trip.role === "motorista" && <CarCostEditor trip={trip} st={st} upd={upd} />}
+              {!readOnly && <div style={{ fontSize: 11, color: C.muted, marginTop: 10 }}>{lang === "en" ? "Tap any status again to undo." : "Toque novamente em qualquer status para desfazer."}</div>}
             </div>
           )}
         </div>
@@ -1814,7 +1823,7 @@
                                   </div>
                               }
                               <button onClick={() => toggleExp(dId)} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 11, padding: "4px 0 0", fontFamily: "Barlow, sans-serif" }}>
-                                {isOpen ? "▲ ocultar" : "▼ detalhes"}
+                                {isOpen ? (lang === "en" ? "▲ hide" : "▲ ocultar") : (lang === "en" ? "▼ details" : "▼ detalhes")}
                               </button>
                             </div>
                           </div>
@@ -1823,17 +1832,17 @@
                               {iOweTrips.length > 0 && (
                                 <div>
                                   <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>{t("rode_with", name)}</div>
-                                  {iOweTrips.map(t => {
-                                    const x = t.direction === "ambas" ? 2 : 1;
+                                  {iOweTrips.map(tr => {
+                                    const x = tr.direction === "ambas" ? 2 : 1;
                                     return (
-                                      <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
-                                        <div style={{ fontSize: 13, color: t.paid ? C.muted : C.text }}>
-                                          <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(t.date, lang)}</span>{fmtFull(t.date)} · {DIR(lang)[t.direction]}
-                                          {t.paid && <span style={{ color: C.green, marginLeft: 6, fontSize: 11 }}>{t("paid_label_short")}</span>}
+                                      <div key={tr.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
+                                        <div style={{ fontSize: 13, color: tr.paid ? C.muted : C.text }}>
+                                          <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(tr.date, lang)}</span>{fmtFull(tr.date)} · {DIR(lang)[tr.direction]}
+                                          {tr.paid && <span style={{ color: C.green, marginLeft: 6, fontSize: 11 }}>{t("paid_label_short")}</span>}
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: t.paid ? C.muted : C.red }}>{R(tripPrice(t) * x)}</span>
-                                          {!t.paid && <button onClick={() => markPaid(t.id)} style={btnGreen}>{t("extrato_pay")}</button>}
+                                          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: tr.paid ? C.muted : C.red }}>{R(tripPrice(tr) * x)}</span>
+                                          {!tr.paid && <button onClick={() => markPaid(tr.id)} style={btnGreen}>{t("extrato_pay")}</button>}
                                         </div>
                                       </div>
                                     );
@@ -1856,7 +1865,7 @@
                                           </div>
                                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: p.paid ? C.muted : C.amber }}>{R(paxPrice(p) * pm)}</span>
-                                            {!p.paid && <button onClick={() => markPaxPaid(trip.id, p.id)} style={btnGreen}>Recebi ✓</button>}
+                                            {!p.paid && <button onClick={() => markPaxPaid(trip.id, p.id)} style={btnGreen}>{t("trip_received")}</button>}
                                           </div>
                                         </div>
                                       );
@@ -1910,7 +1919,7 @@
                                       <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 700, color: p.paid ? C.green : C.amber }}>{R(paxPrice(p) * pm)}</span>
                                       {p.paid
                                         ? <span style={{ color: C.green, fontSize: 12 }}>{t("received_label_short")}</span>
-                                        : <button onClick={() => markPaxPaid(trip.id, p.id)} style={btnGreen}>Recebi ✓</button>}
+                                        : <button onClick={() => markPaxPaid(trip.id, p.id)} style={btnGreen}>{t("trip_received")}</button>}
                                     </div>
                                   </div>
                                 );
@@ -1956,7 +1965,7 @@
     
                 {/* Acumulado total */}
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "18px 18px 14px" }}>
-                  <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.3, textTransform: "uppercase", marginBottom: 14 }}>Acumulado total — dinheiro real</div>
+                  <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.3, textTransform: "uppercase", marginBottom: 14 }}>{lang === "en" ? "Grand total — real money" : "Acumulado total — dinheiro real"}</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                     <div style={{ background: C.dim, borderRadius: 10, padding: "10px 12px" }}>
                       <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>{t("extrato_paid_rides")}</div>
@@ -1964,9 +1973,9 @@
                       {flowTotals.spentPending > 0 && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{t("pending_short", R(flowTotals.spentPending))}</div>}
                     </div>
                     <div style={{ background: C.dim, borderRadius: 10, padding: "10px 12px" }}>
-                      <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Recebi</div>
+                      <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>{t("extrato_received")}</div>
                       <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 700, color: C.green }}>{R(flowTotals.earnedPaid)}</div>
-                      {(flowTotals.earnedPending - earnedCancelledTotal) > 0 && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{lang === "en" ? `${R(flowTotals.earnedPending - earnedCancelledTotal)} to receive` : `${R(flowTotals.earnedPending - earnedCancelledTotal)} a receber`}</div>}
+                      {(flowTotals.earnedPending - earnedCancelledTotal) > 0 && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{`${R(flowTotals.earnedPending - earnedCancelledTotal)} ${lang === "en" ? "to receive" : "a receber"}`}</div>}
                       {earnedCancelledTotal > 0 && <div style={{ fontSize: 10, color: C.green, marginTop: 2 }}>{t("cancelled_carona_short", R(earnedCancelledTotal))}</div>}
                     </div>
                     <div style={{ background: C.dim, borderRadius: 10, padding: "10px 12px" }}>
@@ -1979,7 +1988,7 @@
                       <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 700, color: flowTotals.net > 0 ? C.red : C.green }}>
                         {flowTotals.net <= 0 ? R(0) : R(flowTotals.net)}
                       </div>
-                      <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>paguei + carro − recebi</div>
+                      <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{lang === "en" ? "paid + car − received" : "paguei + carro − recebi"}</div>
                     </div>
                   </div>
                 </div>
@@ -2031,22 +2040,22 @@
                             </button>
                             {isOpen && (
                               <div style={{ borderTop: `1px solid ${C.border}`, padding: "10px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-                                {monTrips.sort((a, b) => b.date.localeCompare(a.date)).map(t => {
-                                  const cc = carCostTotal(t);
+                                {monTrips.sort((a, b) => b.date.localeCompare(a.date)).map(tr => {
+                                  const cc = carCostTotal(tr);
                                   return (
-                                    <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
+                                    <div key={tr.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
                                       <div>
-                                        <div style={{ fontSize: 13, color: t.carCost.paid ? C.muted : C.text }}><span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(t.date, lang)}</span>{fmtFull(t.date)} · {DIR(lang)[t.direction]}</div>
+                                        <div style={{ fontSize: 13, color: tr.carCost.paid ? C.muted : C.text }}><span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(tr.date, lang)}</span>{fmtFull(tr.date)} · {DIR(lang)[tr.direction]}</div>
                                         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
-                                          ⛽ {R(t.carCost.gas)} + 🛣️ {R(t.carCost.toll)}
-                                          {t.carCost.paid && <span style={{ color: C.green, marginLeft: 6 }}>✓ pago</span>}
+                                          ⛽ {R(tr.carCost.gas)} + 🛣️ {R(tr.carCost.toll)}
+                                          {tr.carCost.paid && <span style={{ color: C.green, marginLeft: 6 }}>{t("paid_label_short")}</span>}
                                         </div>
                                       </div>
                                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: t.carCost.paid ? C.muted : "#F5A623" }}>{R(cc)}</span>
-                                        <button onClick={() => t.carCost.paid ? unmarkCarPaid(t.id) : markCarPaid(t.id)}
-                                          style={{ background: t.carCost.paid ? C.dim : C.greenDim, border: `1px solid ${t.carCost.paid ? C.border : C.green+"44"}`, color: t.carCost.paid ? C.muted : C.green, borderRadius: 7, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontFamily: "Barlow, sans-serif", fontWeight: 600 }}>
-                                          {t.carCost.paid ? t("extrato_undo") : t("extrato_pay")}
+                                        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: tr.carCost.paid ? C.muted : "#F5A623" }}>{R(cc)}</span>
+                                        <button onClick={() => tr.carCost.paid ? unmarkCarPaid(tr.id) : markCarPaid(tr.id)}
+                                          style={{ background: tr.carCost.paid ? C.dim : C.greenDim, border: `1px solid ${tr.carCost.paid ? C.border : C.green+"44"}`, color: tr.carCost.paid ? C.muted : C.green, borderRadius: 7, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontFamily: "Barlow, sans-serif", fontWeight: 600 }}>
+                                          {tr.carCost.paid ? t("extrato_undo") : t("extrato_pay")}
                                         </button>
                                       </div>
                                     </div>
@@ -2064,7 +2073,7 @@
                 {/* Fluxo por mês */}
                 {Object.keys(monthlyFlow).length > 0 && (
                   <div>
-                    <SectionLabel>Fluxo por mês</SectionLabel>
+                    <SectionLabel>{lang === "en" ? "Monthly flow" : "Fluxo por mês"}</SectionLabel>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {Object.entries(monthlyFlow).sort((a, b) => b[0].localeCompare(a[0])).map(([mon, v]) => {
                         const net = (v.spentPaid || 0) + (v.carCost || 0) - (v.earnedPaid || 0);
@@ -2248,7 +2257,7 @@
                   {isOpen && (
                     <div style={{ borderTop: `1px solid ${C.border}`, padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
                       {[...trips].sort((a, b) => b.date.localeCompare(a.date)).map(t => (
-                        <TripCard key={t.id} trip={t} st={st} upd={upd} showDelete weekDn={driverNet} />
+                        <TripCard key={t.id} trip={t} st={st} upd={upd} readOnly weekDn={driverNet} />
                       ))}
                     </div>
                   )}
@@ -2313,7 +2322,25 @@
     
       const [importErr, setImportErr] = useState(null);
       const [importOk, setImportOk] = useState(false);
+      const [showPaste, setShowPaste] = useState(false);
+      const [pasteVal, setPasteVal] = useState("");
       const fileRef = useRef(null);
+    
+      const importFromText = (text) => {
+        try {
+          const parsed = JSON.parse(text);
+          if (!parsed.drivers || !Array.isArray(parsed.trips)) throw new Error(t("invalid_format"));
+          upd(parsed);
+          setImportOk(true);
+          setImportErr(null);
+          setShowPaste(false);
+          setPasteVal("");
+          setTimeout(() => setImportOk(false), 3000);
+        } catch {
+          setImportErr(t("opts_import_err"));
+          setTimeout(() => setImportErr(null), 4000);
+        }
+      };
     
       const exportBackup = () => {
         const json = JSON.stringify(st, null, 2);
@@ -2331,19 +2358,7 @@
         const file = e.target.files?.[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const parsed = JSON.parse(ev.target.result);
-            if (!parsed.drivers || !Array.isArray(parsed.trips)) throw new Error(t("invalid_format"));
-            upd(parsed);
-            setImportOk(true);
-            setImportErr(null);
-            setTimeout(() => setImportOk(false), 3000);
-          } catch {
-            setImportErr(t("opts_import_err"));
-            setTimeout(() => setImportErr(null), 4000);
-          }
-        };
+        reader.onload = (ev) => importFromText(ev.target.result);
         reader.readAsText(file);
         e.target.value = "";
       };
@@ -2479,6 +2494,31 @@
                   {t("opts_import")}
                 </button>
                 <input ref={fileRef} type="file" accept=".json,application/json" onChange={importBackup} style={{ display: "none" }} />
+                <button onClick={() => { setShowPaste(v => !v); setPasteVal(""); }} style={{
+                  background: C.dim, border: `1px solid ${C.border}`,
+                  color: C.muted, borderRadius: 9, padding: "9px 0",
+                  fontSize: 13, fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
+                }}>
+                  {lang === "en" ? "📋 Paste JSON" : "📋 Colar JSON"}
+                </button>
+                {showPaste && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <textarea
+                      value={pasteVal}
+                      onChange={e => setPasteVal(e.target.value)}
+                      placeholder={lang === "en" ? "Paste backup JSON here…" : "Cole o JSON do backup aqui…"}
+                      rows={5}
+                      style={{ ...inp, fontSize: 12, padding: "10px 12px", resize: "vertical", fontFamily: "monospace" }}
+                    />
+                    <button onClick={() => importFromText(pasteVal)} style={{
+                      background: C.amberDim, border: `1px solid ${C.amber}44`,
+                      color: C.amber, borderRadius: 9, padding: "9px 0",
+                      fontSize: 13, fontWeight: 700, cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
+                    }}>
+                      {lang === "en" ? "Import" : "Importar"}
+                    </button>
+                  </div>
+                )}
                 {importOk && <div style={{ fontSize: 12, color: C.green, textAlign: "center" }}>{t("opts_import_ok")}</div>}
                 {importErr && <div style={{ fontSize: 12, color: C.red, textAlign: "center" }}>{importErr}</div>}
                 <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5 }}>
