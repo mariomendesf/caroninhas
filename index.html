@@ -260,6 +260,30 @@
         lock_ph: "Senha", lock_wrong: "Senha incorreta", lock_enter: "Entrar",
         // Loading
         loading: "Carregando…",
+        all_clear: "Tudo zerado!",
+        real_cost: "Custo real",
+        save_btn: "Salvar ✓",
+        car_cost_editor_title: "⛽ Custo do carro",
+        no_car_cost: "Sem custo do carro",
+        edit_label: "✏️ Editar",
+        add_car_cost_btn: "+ Custo carro",
+        you_rode_amount: (v) => `Você rodou ${v} com ele(a)`,
+        they_rode_amount: (v) => `Ele(a) rodou ${v} com você`,
+        you_owe_them: (name) => `você deve a ${name}`,
+        they_owe_you: (name) => `${name} te deve`,
+        balance_you_owe: "Saldo: você ainda deve",
+        balance_they_owe: (name) => `Saldo: ${name} ainda te deve`,
+        car_cost_short: "Custo carro",
+        copy_pix_btn: "📋 Copiar Pix",
+        by_week_label: "Por semana",
+        drivers_group_label: "Motoristas do grupo",
+        driver_n_ph: (n) => `Motorista ${n}`,
+        delete_all_trips: "🗑️ Apagar todas as viagens",
+        confirm_delete_title: "Confirmar exclusão",
+        round_plus: "Ida+Volta",
+        days_as_driver: (n, v) => `${n} dia${n !== 1 ? "s" : ""} como motorista · total ${v}`,
+        cancel_btn: "Cancelar",
+        enter_btn: "Entrar",
       },
       en: {
         nav_home: "Home", nav_add: "Register", nav_extratos: "Finances", nav_hist: "History", nav_opts: "Settings",
@@ -420,6 +444,34 @@
         opts_firebase_off: "⚠️ Firebase offline — data only on this device",
         lock_subtitle: "Mogi Guaçu ↔ Campinas",
         lock_ph: "Password", lock_wrong: "Wrong password", lock_enter: "Enter",
+        all_clear: "All clear!",
+        real_cost: "Real cost",
+        save_btn: "Save ✓",
+        car_cost_editor_title: "⛽ Car cost",
+        no_car_cost: "No car cost",
+        edit_label: "✏️ Edit",
+        add_car_cost_btn: "+ Car cost",
+        you_rode_amount: (v) => `You rode ${v} with them`,
+        they_rode_amount: (v) => `They rode ${v} with you`,
+        you_owe_them: (name) => `you owe ${name}`,
+        they_owe_you: (name) => `${name} owes you`,
+        balance_you_owe: "Balance: you still owe",
+        balance_they_owe: (name) => `Balance: ${name} still owes you`,
+        car_cost_short: "Car cost",
+        copy_pix_btn: "📋 Copy Pix",
+        by_week_label: "By week",
+        drivers_group_label: "Group drivers",
+        driver_n_ph: (n) => `Driver ${n}`,
+        delete_all_trips: "🗑️ Delete all trips",
+        confirm_delete_title: "Confirm deletion",
+        round_plus: "Rnd+Trip",
+        days_as_driver: (n, v) => `${n} day${n !== 1 ? "s" : ""} as driver · total ${v}`,
+        cancel_btn: "Cancel",
+        enter_btn: "Sign in",
+        saldo_section: "Detailed balance",
+        gross_amounts: "Gross amounts",
+        your_total: "Your total costs",
+        their_total: "Their total",
         loading: "Loading…",
       },
     };
@@ -855,15 +907,15 @@
               <div style={{ fontSize: 12, color: C.muted }}>
                 {cc
                   ? <span>⛽ {R(cc.gas)} + 🛣️ {R(cc.toll)} = <strong style={{ color: cc.paid ? C.green : "#F5A623" }}>{R((cc.gas||0)+(cc.toll||0))}</strong>{cc.paid ? " " + t("paid_label_short") : " " + (lang === "en" ? "pending" : "pendente")}</span>
-                  : <span>Sem custo do carro</span>}
+                  : <span>{t("no_car_cost")}</span>}
               </div>
               <button onClick={() => setEditing(true)} style={{ background: C.dim, border: `1px solid ${C.border}`, color: C.muted, borderRadius: 7, padding: "5px 10px", fontSize: 11, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>
-                {cc ? "✏️ Editar" : "+ Custo carro"}
+                {cc ? t("edit_label") : t("add_car_cost_btn")}
               </button>
             </div>
           ) : (
             <div>
-              <div style={{ fontSize: 11, color: "#F5A623", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>⛽ Custo do carro</div>
+              <div style={{ fontSize: 11, color: "#F5A623", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>{t("car_cost_editor_title")}</div>
               <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{t("opts_fuel")} R$</div>
@@ -882,9 +934,9 @@
                 </div>
               </div>
               <div style={{ display: "flex", gap: 6 }}>
-                <button onClick={save} style={{ flex: 1, background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, borderRadius: 7, padding: "7px 0", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>Salvar ✓</button>
-                <button onClick={() => setEditing(false)} style={{ background: C.dim, border: `1px solid ${C.border}`, color: C.muted, borderRadius: 7, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>Cancelar</button>
-                {hasCC && <button onClick={remove} style={{ background: C.redDim, border: `1px solid ${C.red}44`, color: C.red, borderRadius: 7, padding: "7px 10px", fontSize: 12, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>Remover</button>}
+                <button onClick={save} style={{ flex: 1, background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, borderRadius: 7, padding: "7px 0", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>{t("save_btn")}</button>
+                <button onClick={() => setEditing(false)} style={{ background: C.dim, border: `1px solid ${C.border}`, color: C.muted, borderRadius: 7, padding: "7px 12px", fontSize: 12, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>{t("cancel_btn")}</button>
+                {hasCC && <button onClick={remove} style={{ background: C.redDim, border: `1px solid ${C.red}44`, color: C.red, borderRadius: 7, padding: "7px 10px", fontSize: 12, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>{lang === "en" ? "Remove" : "Remover"}</button>}
               </div>
             </div>
           )}
@@ -1453,7 +1505,7 @@
                         )}
                         {/* Direction row */}
                         <div style={{ display: "flex", gap: 5, marginBottom: 8 }}>
-                          {[["ida", t("add_leg_there")], ["volta", t("add_leg_back")], ["ambas", lang === "en" ? "Round+" : "Ida+Volta"]].map(([val, lbl2]) => (
+                          {[["ida", t("add_leg_there")], ["volta", t("add_leg_back")], ["ambas", t("round_plus")]].map(([val, lbl2]) => (
                             <button key={val} onClick={() => updPax(p.id, "direction", val === dir && !p.direction ? null : val)}
                               style={{
                                 flex: 1, background: pDir === val ? (dirChanged ? C.blue + "33" : C.amberDim) : "transparent",
@@ -1744,9 +1796,9 @@
                                 </div>
                               )}
                               <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>
-                                {dn.iOwe > 0 && <span>Você rodou {R(dn.iOwe)} com ele(a)</span>}
+                                {dn.iOwe > 0 && <span>{t("you_rode_amount", R(dn.iOwe))}</span>}
                                 {dn.iOwe > 0 && dn.theyOwe > 0 && <span style={{ margin: "0 5px" }}>·</span>}
-                                {dn.theyOwe > 0 && <span>Ele(a) rodou {R(dn.theyOwe)} com você</span>}
+                                {dn.theyOwe > 0 && <span>{t("they_rode_amount", R(dn.theyOwe))}</span>}
                               </div>
                             </div>
                             <div style={{ textAlign: "right" }}>
@@ -1757,7 +1809,7 @@
                                       {iOweThem ? "−" : "+"}{R(Math.abs(net))}
                                     </div>
                                     <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>
-                                      {iOweThem ? `você deve a ${name}` : `${name} te deve`}
+                                      {iOweThem ? t("you_owe_them", name) : t("they_owe_you", name)}
                                     </div>
                                   </div>
                               }
@@ -1815,7 +1867,7 @@
                               {!isEven && (
                                 <div style={{ background: iOweThem ? C.redDim : C.amberDim, border: `1px solid ${iOweThem ? C.red+"33" : C.amber+"33"}`, borderRadius: 9, padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                   <span style={{ fontSize: 13, color: iOweThem ? C.red : C.amber }}>
-                                    {iOweThem ? `Saldo: você ainda deve` : `Saldo: ${name} ainda te deve`}
+                                    {iOweThem ? t("balance_you_owe") : t("balance_they_owe", name)}
                                   </span>
                                   <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: iOweThem ? C.red : C.amber }}>{R(Math.abs(net))}</span>
                                 </div>
@@ -1875,7 +1927,7 @@
               {totalIOwePending === 0 && totalTheyOwePending === 0 && trips.length > 0 && (
                 <div style={{ ...cardS, textAlign: "center", padding: "32px 20px" }}>
                   <div style={{ fontSize: 36, marginBottom: 10 }}>✅</div>
-                  <div style={{ color: C.green, fontSize: 15, fontWeight: 600 }}>Tudo zerado!</div>
+                  <div style={{ color: C.green, fontSize: 15, fontWeight: 600 }}>{t("all_clear")}</div>
                   <div style={{ color: C.muted, fontSize: 13, marginTop: 4 }}>{lang === "en" ? (scope === "week" ? "No pending amounts this week." : "No pending amounts overall.") : `Nenhum valor pendente ${scope === "week" ? "nesta semana" : "em geral"}.`}</div>
                 </div>
               )}
@@ -1918,12 +1970,12 @@
                       {earnedCancelledTotal > 0 && <div style={{ fontSize: 10, color: C.green, marginTop: 2 }}>{t("cancelled_carona_short", R(earnedCancelledTotal))}</div>}
                     </div>
                     <div style={{ background: C.dim, borderRadius: 10, padding: "10px 12px" }}>
-                      <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Custo carro</div>
+                      <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>{t("car_cost_short")}</div>
                       <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 700, color: "#F5A623" }}>{R(flowTotals.carCost)}</div>
                       <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{t("paid_short", R(flowTotals.carCostPaid))} · {t("pending_short", R(flowTotals.carCost - flowTotals.carCostPaid))}</div>
                     </div>
                     <div style={{ background: flowTotals.net > 0 ? C.redDim : C.greenDim, border: `1px solid ${flowTotals.net > 0 ? C.red+"33" : C.green+"33"}`, borderRadius: 10, padding: "10px 12px" }}>
-                      <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Custo real</div>
+                      <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>{t("real_cost")}</div>
                       <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 700, color: flowTotals.net > 0 ? C.red : C.green }}>
                         {flowTotals.net <= 0 ? R(0) : R(flowTotals.net)}
                       </div>
@@ -1935,13 +1987,13 @@
                 {Object.keys(momDebt).length > 0 && (
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                      <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.3, textTransform: "uppercase" }}>⛽ Devo pra minha mãe</div>
+                      <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.3, textTransform: "uppercase" }}>{t("extrato_mom")}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         {st.momPix && totalMomDebt > 0 && (
                           <button onClick={() => {
                             try { navigator.clipboard.writeText(st.momPix); } catch { const ta = document.createElement("textarea"); ta.value = st.momPix; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
                           }} style={{ background: "rgba(245,166,35,0.12)", border: "1px solid #F5A62344", color: "#F5A623", borderRadius: 7, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>
-                            📋 Copiar Pix
+                            {t("copy_pix_btn")}
                           </button>
                         )}
                         {totalMomDebt > 0
@@ -1967,7 +2019,7 @@
                                   {pending === 0 && <span style={{ background: C.green, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{t("extrato_badge_paid")}</span>}
                                 </div>
                                 <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
-                                  {monTrips.length} {lang === "en" ? `day${monTrips.length !== 1 ? "s" : ""} as driver · total` : `dia${monTrips.length !== 1 ? "s" : ""} como motorista · total`} {R(v.total)}
+                                  {t("days_as_driver", monTrips.length, R(v.total))}
                                 </div>
                               </div>
                               <div style={{ textAlign: "right" }}>
@@ -2038,7 +2090,7 @@
                                 {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{lang === "en" ? "CURRENT" : "ATUAL"}</span>}
                               </div>
                               <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: net <= 0 ? C.green : C.red }}>
-                                {net <= 0 ? "R$ 0" : R(net)} <span style={{ fontSize: 11, color: C.muted, fontWeight: 400 }}>custo real</span>
+                                {net <= 0 ? "R$ 0" : R(net)} <span style={{ fontSize: 11, color: C.muted, fontWeight: 400 }}>{t("real_cost")}</span>
                               </div>
                             </div>
                             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: totalOut > 0 ? 8 : 0 }}>
@@ -2071,7 +2123,7 @@
                 {/* Por semana */}
                 {flowWeeks.length > 0 && (
                   <div>
-                    <SectionLabel>Por semana</SectionLabel>
+                    <SectionLabel>{t("by_week_label")}</SectionLabel>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                       {flowWeeks.map(week => {
                         const v = flowByWeek[week];
@@ -2308,7 +2360,7 @@
     
           <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 14 }}>
             <div style={cardS}>
-              <label style={lbl}>Motoristas do grupo</label>
+              <label style={lbl}>{t("drivers_group_label")}</label>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {drivers.map((d, i) => (
                   <div key={d.id} style={{ display: "flex", flexDirection: "column", gap: 6, paddingBottom: 12, borderBottom: `1px solid ${C.dim}` }}>
@@ -2318,7 +2370,7 @@
                       </div>
                       <input
                         value={d.name} onChange={e => setN(i, e.target.value)}
-                        placeholder={i === 0 ? t("opts_your_name") : `Motorista ${i + 1}`}
+                        placeholder={i === 0 ? t("opts_your_name") : t("driver_n_ph", i + 1)}
                         style={{ ...inp, borderColor: i === 0 ? C.amber + "44" : C.border, padding: "9px 12px", fontSize: 14 }}
                         disabled={i === 0}
                       />
@@ -2348,11 +2400,11 @@
             </div>
     
             <div style={{ ...cardS, borderColor: "#7C5C2E55" }}>
-              <label style={{ ...lbl, color: "#F5A623" }}>⛽ Custo padrão do carro</label>
-              <div style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>Valores usados como padrão ao registrar dias como motorista.</div>
+              <label style={{ ...lbl, color: "#F5A623" }}>{t("opts_car_cost")}</label>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>{t("opts_car_cost_sub")}</div>
               <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>Combustível</div>
+                  <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>{t("opts_fuel")}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                     <span style={{ color: C.muted, fontSize: 12 }}>R$</span>
                     <input type="number" min="0" step="0.01" value={gasVal} onChange={e => setGasVal(e.target.value)}
@@ -2360,7 +2412,7 @@
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>Pedágio</div>
+                  <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>{t("opts_toll")}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                     <span style={{ color: C.muted, fontSize: 12 }}>R$</span>
                     <input type="number" min="0" step="0.01" value={tollVal} onChange={e => setTollVal(e.target.value)}
@@ -2374,7 +2426,7 @@
                 </strong>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>Pix da sua mãe</div>
+                <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>{t("opts_mom_pix")}</div>
                 <input
                   type="text"
                   value={momPixVal}
@@ -2443,11 +2495,11 @@
                   color: C.muted, borderRadius: 9, padding: "11px 0",
                   fontSize: 13, fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
                 }}>
-                  🗑️ Apagar todas as viagens
+                  {t("delete_all_trips")}
                 </button>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <div style={{ fontSize: 13, color: C.red }}>Digite a senha para confirmar:</div>
+                  <div style={{ fontSize: 13, color: C.red }}>{t("opts_delete_confirm")}</div>
                   <input
                     type="password"
                     value={dangerPass}
@@ -2463,14 +2515,14 @@
                       color: C.red, borderRadius: 9, padding: "11px 0",
                       fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif",
                     }}>
-                      Confirmar exclusão
+                      {t("opts_delete_do")}
                     </button>
                     <button onClick={() => { setShowDanger(false); setDangerPass(""); setDangerErr(false); }} style={{
                       background: C.dim, border: `1px solid ${C.border}`,
                       color: C.muted, borderRadius: 9, padding: "11px 14px",
                       fontSize: 13, cursor: "pointer", fontFamily: "Barlow, sans-serif",
                     }}>
-                      Cancelar
+                      {t("cancel_btn")}
                     </button>
                   </div>
                 </div>
