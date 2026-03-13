@@ -78,10 +78,310 @@
       const [y, m, d] = s.split("-");
       return `${d}/${m}/${y}`;
     }
-    const WEEKDAYS = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
-    function weekday(s) {
+    const WEEKDAYS_PT = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+    const WEEKDAYS_EN = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    function weekday(s, lang) {
       const d = new Date(s + "T12:00:00");
-      return WEEKDAYS[d.getDay()];
+      return (lang === "en" ? WEEKDAYS_EN : WEEKDAYS_PT)[d.getDay()];
+    }
+    
+    // ═══════════════════════════════════════════
+    //  TRANSLATIONS
+    // ═══════════════════════════════════════════
+    const TR = {
+      pt: {
+        // Nav
+        nav_home: "Início", nav_add: "Registrar", nav_extratos: "Extratos", nav_hist: "Histórico", nav_opts: "Opções",
+        // Setup
+        setup_title: "Caronas\nMogi ↔ Campinas", setup_subtitle: "Configure os motoristas do grupo pra começar.\nVocê pode editar isso depois nas configurações.",
+        setup_you: "Você", setup_your_name: t("opts_your_name"), setup_other_drivers: "Outros Motoristas",
+        setup_optional: "(opcional, pode preencher depois)", setup_driver_n: (n) => `Motorista ${n}`, setup_go: "VAMOS LÁ →",
+        // Home
+        home_week: (n) => `SEMANA ${n}`, home_current_badge: "ATUAL",
+        home_back_to_current: "voltar para semana atual",
+        home_trips_n: (n) => `${n} ${n === 1 ? "viagem" : "viagens"}`,
+        home_owe: "Devo", home_to_receive: "A receber",
+        home_to_drivers: "para motoristas", home_from_pax: "dos passageiros",
+        home_all_paid: "Tudo pago ✓", home_all_received: "Tudo recebido ✓",
+        home_cancelled_ride: "Quitado com carona ✓",
+        home_register: "+ Registrar Viagem",
+        home_trips_this_week: "Viagens desta semana", home_trips_week: "Viagens da semana",
+        home_empty: "Nenhuma viagem nesta semana",
+        // AddTrip
+        add_back: "← Voltar", add_title: "Registrar Viagem",
+        add_date: "Data", add_leg: "Trecho",
+        add_leg_there: "Ida →", add_leg_back: "← Volta", add_leg_both: "Ida e Volta",
+        add_leg_both_note: (v) => `↑ Vale por 2 trechos = ${v}`,
+        add_role: "Você foi...", add_passenger: "🪑 Fui de carona", add_driver: "🚗 Fui motorista",
+        add_who_drove: "Quem dirigiu?", add_other_driver: "Outro (digitar nome)",
+        add_driver_name_ph: "Nome de quem dirigiu",
+        add_price_per_leg: t("add_price_per_leg"), add_custom_price: t("add_custom_price"),
+        add_already_paid: (v) => `Já paguei ${v}`,
+        add_passengers: "Passageiros",
+        add_pax_select_ph: t("add_pax_select_ph"),
+        add_pax_other: "Outro (digitar)", add_pax_name_ph: (n) => `Nome do passageiro ${n}`,
+        add_pax_name_free_ph: "Nome do passageiro",
+        add_per_leg_total: (v) => `/trecho · total ${v}`,
+        add_paid_label: "pago",
+        add_add_pax: t("add_add_pax"),
+        add_pax_limit: t("add_pax_limit"),
+        add_total_receive: (v) => `Total a receber: ${v}`,
+        add_car_cost: "⛽ Custo do carro", add_car_cost_sub: "Combustível + pedágio pra sua mãe",
+        add_include_car_cost: t("add_include_car_cost"),
+        add_fuel: "Combustível", add_toll: "Pedágio",
+        add_car_cost_paid: t("add_car_cost_paid"),
+        add_car_total: (v) => `Total carro: ${v}`,
+        add_note: "Observação", add_note_ph: "Ex: carro diferente, saída atrasada…",
+        add_chars_left: (n) => `${n} caracteres restantes`,
+        add_save: "SALVAR", add_duplicate: "Já existe uma viagem nessa data.",
+        // TripCard
+        trip_driver: "Motorista", trip_passenger: "Carona",
+        trip_edit_date: "Editar data", trip_save: "OK", trip_cancel: "✕",
+        trip_no_passengers: "Nenhum passageiro",
+        trip_paid_label: "pago", trip_pending_label: "pendente",
+        trip_quitado: "quitado c/ carona ✓",
+        trip_mark_paid: "Marcar pago",  trip_undo_paid: "✓ Pago",
+        trip_mark_received: "Marcar recebido", trip_received: "✓ Recebido",
+        trip_quitado_btn: "🤝 Quitado c/ carona",
+        trip_counter_ok: "tudo certo ✓",
+        trip_paid_count: (a, b) => `${a}/${b} pagaram`,
+        trip_car_cost: "⛽ Custo do carro",
+        trip_fuel_toll: (g, t2) => `⛽ ${g} + 🛣️ ${t2}`,
+        trip_car_paid: "✓ pago",
+        trip_pay_car: "Paguei ✓", trip_undo_car: "Desfazer",
+        trip_delete: "🗑️ Apagar viagem",
+        trip_pix_driver: (name) => `Pix de ${name}`,
+        trip_copy_pix: t("extrato_mom_copy_pix"),
+        trip_pix_copied: (name) => `✓ Pix de ${name} copiado!`,
+        trip_duplicate_date: "Já existe uma viagem nessa data",
+        // Saldos
+        saldos_title: "Saldos",
+        saldos_tab_balances: "💰 Saldos", saldos_tab_extratos: "📊 Extratos",
+        saldos_this_week: "Esta semana", saldos_all: "Geral",
+        saldos_net_owe: "Saldo líquido devo", saldos_to_receive: "A receber",
+        saldos_they_owe: (v) => `t("saldos_they_owe", "").replace("","")${v}`,
+        saldos_i_owe: (v) => `devo ${v}`,
+        saldos_quites: t("saldos_quites"), saldos_no_trips: t("saldos_no_trips"),
+        saldos_pax_others: t("saldos_pax_others"),
+        saldos_pax_paid: (a, b) => `${a} de ${b} pago`,
+        saldos_copy_pix: t("saldos_copy_pix"),
+        saldos_pix_copied: t("saldos_pix_copied"),
+        // Extrato
+        extrato_total_label: t("extrato_total_label"),
+        extrato_paid_rides: t("extrato_paid_rides"), extrato_received: t("extrato_received"),
+        extrato_pending_paid: (v) => `+${v} pendente de pagamento`,
+        extrato_pending_receive: (v) => `+${v} a receber`,
+        extrato_cancelled_ride: (v) => `+${v} quitado c/ carona`,
+        extrato_mom: t("extrato_mom"),
+        extrato_mom_all_paid: t("extrato_mom_all_paid"),
+        extrato_mom_pending: (v) => `${v} pendente`,
+        extrato_mom_copy_pix: t("extrato_mom_copy_pix"),
+        extrato_days_driver: (n) => `${n} dia${n !== 1 ? "s" : ""} como motorista · total`,
+        extrato_pay: "Paguei ✓", extrato_undo: "Desfazer",
+        extrato_monthly: t("extrato_monthly"),
+        extrato_by_week: t("extrato_by_week"),
+        extrato_badge_current: "ATUAL",
+        extrato_badge_paid: "PAGO ✓",
+        extrato_badge_pending: "PENDENTE",
+        extrato_badge_quitado: "QUITADO COM CARONA ✓",
+        extrato_week_spent: "Paguei", extrato_week_earned: t("extrato_received"),
+        extrato_week_car: "⛽ Carro",
+        extrato_week_net: "Saldo",
+        extrato_empty: "Nenhum pagamento registrado ainda",
+        extrato_month_spent: (v) => `Paguei ${v}`,
+        extrato_month_received: (v) => `(${v} recebido)`,
+        extrato_month_car: (v) => `⛽ Carro ${v}`,
+        extrato_month_net: (v) => `Saldo ${v}`,
+        extrato_month_trips: (n) => `${n} viage${n !== 1 ? "ns" : "m"}`,
+        // Hist
+        hist_title: "Histórico",
+        hist_trips_n: (n) => `${n} ${n === 1 ? "viagem" : "viagens"}`,
+        hist_to_receive: (v) => `+${v} a receber`,
+        hist_zeroed: t("hist_zeroed"),
+        hist_empty: "Nenhuma viagem registrada ainda",
+        // Opcoes
+        opts_title: "Opções",
+        opts_drivers: t("opts_drivers"),
+        opts_you_label: t("opts_you_label"),
+        opts_your_name: t("opts_your_name"),
+        opts_pix: t("opts_pix"),
+        opts_driver_n: (n) => `Motorista ${n}`,
+        opts_driver_name_ph: (n) => `Nome do motorista ${n}`,
+        opts_save_drivers: "Salvar motoristas", opts_saved: "✓ Salvo!",
+        opts_car_cost: t("opts_car_cost"),
+        opts_car_cost_sub: t("opts_car_cost_sub"),
+        opts_fuel: "Combustível", opts_toll: "Pedágio",
+        opts_car_total: "Total por dia como motorista:",
+        opts_mom_pix: t("opts_mom_pix"),
+        opts_mom_pix_ph: t("opts_mom_pix_ph"),
+        opts_save_car: "Salvar valores padrão",
+        opts_backup: t("opts_backup"),
+        opts_export: t("opts_export"),
+        opts_import: t("opts_import"),
+        opts_import_ok: t("opts_import_ok"),
+        opts_import_err: t("opts_import_err"),
+        opts_backup_note: t("opts_backup_note"),
+        opts_language: "Idioma",
+        opts_danger: t("opts_danger"),
+        opts_delete_btn: t("opts_delete_btn"),
+        opts_delete_confirm: t("opts_delete_confirm"),
+        opts_delete_pass_ph: t("opts_delete_pass_ph"),
+        opts_delete_wrong: t("opts_delete_wrong"),
+        opts_delete_do: t("opts_delete_do"),
+        opts_version: t("opts_version"),
+        opts_firebase_ok: t("opts_firebase_ok"),
+        opts_firebase_off: t("opts_firebase_off"),
+        // Lock
+        lock_subtitle: st ? t("lock_subtitle") : t("lock_subtitle"),
+        lock_ph: t("opts_delete_pass_ph"), lock_wrong: t("opts_delete_wrong"), lock_enter: "Entrar",
+        // Loading
+        loading: t("loading"),
+      },
+      en: {
+        nav_home: "Home", nav_add: "Register", nav_extratos: "Finances", nav_hist: "History", nav_opts: "Settings",
+        setup_title: "Carpools\nMogi ↔ Campinas", setup_subtitle: "Set up the group's drivers to get started.\nYou can edit this later in settings.",
+        setup_you: "You", setup_your_name: "Your name", setup_other_drivers: "Other Drivers",
+        setup_optional: "(optional, can fill in later)", setup_driver_n: (n) => `Driver ${n}`, setup_go: "LET'S GO →",
+        home_week: (n) => `WEEK ${n}`, home_current_badge: "CURRENT",
+        home_back_to_current: "back to current week",
+        home_trips_n: (n) => `${n} ${n === 1 ? "trip" : "trips"}`,
+        home_owe: "I Owe", home_to_receive: "To Receive",
+        home_to_drivers: "to drivers", home_from_pax: "from passengers",
+        home_all_paid: "All paid ✓", home_all_received: "All received ✓",
+        home_cancelled_ride: "Settled by ride ✓",
+        home_register: "+ Register Trip",
+        home_trips_this_week: "This week's trips", home_trips_week: "Week's trips",
+        home_empty: "No trips this week",
+        add_back: "← Back", add_title: "Register Trip",
+        add_date: "Date", add_leg: "Leg",
+        add_leg_there: "There →", add_leg_back: "← Back", add_leg_both: "Round Trip",
+        add_leg_both_note: (v) => `↑ Counts as 2 legs = ${v}`,
+        add_role: "You were...", add_passenger: "🪑 I was a passenger", add_driver: "🚗 I was the driver",
+        add_who_drove: "Who drove?", add_other_driver: "Other (type name)",
+        add_driver_name_ph: "Name of driver",
+        add_price_per_leg: "Price per leg", add_custom_price: "custom price",
+        add_already_paid: (v) => `Already paid ${v}`,
+        add_passengers: "Passengers",
+        add_pax_select_ph: "— Passenger name —",
+        add_pax_other: "Other (type)", add_pax_name_ph: (n) => `Passenger ${n} name`,
+        add_pax_name_free_ph: "Passenger name",
+        add_per_leg_total: (v) => `/leg · total ${v}`,
+        add_paid_label: "paid",
+        add_add_pax: "+ Add passenger",
+        add_pax_limit: "Max 4 passengers per trip",
+        add_total_receive: (v) => `Total to receive: ${v}`,
+        add_car_cost: "⛽ Car cost", add_car_cost_sub: "Fuel + toll for your mom",
+        add_include_car_cost: "Include car cost",
+        add_fuel: "Fuel", add_toll: "Toll",
+        add_car_cost_paid: "Already paid fuel",
+        add_car_total: (v) => `Car total: ${v}`,
+        add_note: "Note", add_note_ph: "E.g. different car, late departure…",
+        add_chars_left: (n) => `${n} characters left`,
+        add_save: "SAVE", add_duplicate: "A trip already exists on this date.",
+        trip_driver: "Driver", trip_passenger: "Passenger",
+        trip_edit_date: "Edit date", trip_save: "OK", trip_cancel: "✕",
+        trip_no_passengers: "No passengers",
+        trip_paid_label: "paid", trip_pending_label: "pending",
+        trip_quitado: "settled by ride ✓",
+        trip_mark_paid: "Mark paid", trip_undo_paid: "✓ Paid",
+        trip_mark_received: "Mark received", trip_received: "✓ Received",
+        trip_quitado_btn: "🤝 Settled by ride",
+        trip_counter_ok: "all good ✓",
+        trip_paid_count: (a, b) => `${a}/${b} paid`,
+        trip_car_cost: "⛽ Car cost",
+        trip_fuel_toll: (g, t2) => `⛽ ${g} + 🛣️ ${t2}`,
+        trip_car_paid: "✓ paid",
+        trip_pay_car: "Paid ✓", trip_undo_car: "Undo",
+        trip_delete: "🗑️ Delete trip",
+        trip_pix_driver: (name) => `${name}'s Pix`,
+        trip_copy_pix: "📋 Copy Pix",
+        trip_pix_copied: (name) => `✓ ${name}'s Pix copied!`,
+        trip_duplicate_date: "A trip already exists on this date",
+        saldos_title: "Balances",
+        saldos_tab_balances: "💰 Balances", saldos_tab_extratos: "📊 Finances",
+        saldos_this_week: "This week", saldos_all: "All time",
+        saldos_net_owe: "Net balance I owe", saldos_to_receive: "To Receive",
+        saldos_they_owe: (v) => `owe me ${v}`,
+        saldos_i_owe: (v) => `I owe ${v}`,
+        saldos_quites: "SETTLED ✓", saldos_no_trips: "No trips this week",
+        saldos_pax_others: "Other passengers",
+        saldos_pax_paid: (a, b) => `${a} of ${b} paid`,
+        saldos_copy_pix: t("saldos_copy_pix"),
+        saldos_pix_copied: "✓ Copied!",
+        extrato_total_label: "All-time total",
+        extrato_paid_rides: "Paid for rides", extrato_received: "Received",
+        extrato_pending_paid: (v) => `+${v} pending payment`,
+        extrato_pending_receive: (v) => `+${v} to receive`,
+        extrato_cancelled_ride: (v) => `+${v} settled by ride`,
+        extrato_mom: "⛽ I owe my mom",
+        extrato_mom_all_paid: "✓ All paid",
+        extrato_mom_pending: (v) => `${v} pending`,
+        extrato_mom_copy_pix: "📋 Copy Pix",
+        extrato_days_driver: (n) => `${n} day${n !== 1 ? "s" : ""} as driver · total`,
+        extrato_pay: "Paid ✓", extrato_undo: "Undo",
+        extrato_monthly: "Monthly flow",
+        extrato_by_week: "By week",
+        extrato_badge_current: "CURRENT",
+        extrato_badge_paid: "PAID ✓",
+        extrato_badge_pending: "PENDING",
+        extrato_badge_quitado: "SETTLED BY RIDE ✓",
+        extrato_week_spent: "Spent", extrato_week_earned: "Earned",
+        extrato_week_car: "⛽ Car",
+        extrato_week_net: "Net",
+        extrato_empty: "No payments recorded yet",
+        extrato_month_spent: (v) => `Paid ${v}`,
+        extrato_month_received: (v) => `(${v} received)`,
+        extrato_month_car: (v) => `⛽ Car ${v}`,
+        extrato_month_net: (v) => `Net ${v}`,
+        extrato_month_trips: (n) => `${n} trip${n !== 1 ? "s" : ""}`,
+        hist_title: "History",
+        hist_trips_n: (n) => `${n} ${n === 1 ? "trip" : "trips"}`,
+        hist_to_receive: (v) => `+${v} to receive`,
+        hist_zeroed: "✓ Settled",
+        hist_empty: "No trips recorded yet",
+        opts_title: "Settings",
+        opts_drivers: "Group drivers",
+        opts_you_label: "You (driver 1)",
+        opts_your_name: "Your name",
+        opts_pix: "Pix key",
+        opts_driver_n: (n) => `Driver ${n}`,
+        opts_driver_name_ph: (n) => `Driver ${n} name`,
+        opts_save_drivers: "Save drivers", opts_saved: "✓ Saved!",
+        opts_car_cost: "⛽ Default car cost",
+        opts_car_cost_sub: "Default values when registering days as driver.",
+        opts_fuel: "Fuel", opts_toll: "Toll",
+        opts_car_total: "Daily total as driver:",
+        opts_mom_pix: "Your mom's Pix",
+        opts_mom_pix_ph: "CPF, phone or pix key",
+        opts_save_car: "Save default values",
+        opts_backup: "Data backup",
+        opts_export: "⬇️ Export backup (.json)",
+        opts_import: "⬆️ Import backup (.json)",
+        opts_import_ok: "✓ Data restored successfully!",
+        opts_import_err: "Invalid file. Use a backup generated by this app.",
+        opts_backup_note: "Export regularly to avoid losing data if you switch phones or clear browser cache.",
+        opts_language: "Language",
+        opts_danger: "Danger zone",
+        opts_delete_btn: "🗑️ Delete all trips",
+        opts_delete_confirm: "Enter password to confirm:",
+        opts_delete_pass_ph: "Password",
+        opts_delete_wrong: "Wrong password",
+        opts_delete_do: "Delete everything",
+        opts_version: "Carpools Mogi ↔ Campinas",
+        opts_firebase_ok: "☁️ Firebase connected",
+        opts_firebase_off: "⚠️ Firebase offline — data only on this device",
+        lock_subtitle: st ? t("lock_subtitle") : t("lock_subtitle"),
+        lock_ph: "Password", lock_wrong: "Wrong password", lock_enter: "Enter",
+        loading: "Loading…",
+      },
+    };
+    
+    function mkT(lang) {
+      const L = TR[lang] || TR.pt;
+      return (key, ...args) => {
+        const val = L[key] ?? TR.pt[key] ?? key;
+        return typeof val === "function" ? val(...args) : val;
+      };
     }
     function weekLabel(mon) {
       const d = new Date(mon + "T12:00:00");
@@ -95,7 +395,20 @@
       d.setDate(d.getDate() + n * 7);
       return getMonday(d.toISOString().split("T")[0]);
     }
-    const DIR = { ida: "Ida →", volta: "← Volta", ambas: "Ida e Volta" };
+    function getWeekNumber(mon) {
+      const d = new Date(mon + "T12:00:00");
+      const jan1 = new Date(d.getFullYear(), 0, 1);
+      // Monday of the week that contains Jan 1
+      const jan1Day = jan1.getDay(); // 0=Sun, 1=Mon...
+      const offset = jan1Day === 0 ? -6 : 1 - jan1Day;
+      const week1Mon = new Date(jan1);
+      week1Mon.setDate(jan1.getDate() + offset);
+      const diff = d - week1Mon;
+      return Math.floor(diff / (7 * 24 * 3600 * 1000)) + 1;
+    }
+    const DIR_PT = { ida: "Ida →", volta: "← Volta", ambas: "Ida e Volta" };
+    const DIR_EN = { ida: "There →", volta: "← Back", ambas: "Round Trip" };
+    function DIR(lang) { return lang === "en" ? DIR_EN : DIR_PT; }
     
     // ═══════════════════════════════════════════
     //  STORAGE
@@ -143,6 +456,8 @@
       drivers: Array.from({ length: 5 }, (_, i) => ({ id: `d${i + 1}`, name: "" })),
       trips: [],
       carCosts: { gas: DEF_GAS, toll: DEF_TOLL },
+      momPix: "",
+      lang: "pt",
     };
     
     // ═══════════════════════════════════════════
@@ -381,6 +696,8 @@
     }
     
     function Setup({ st, upd }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const [drivers, setDrivers] = useState(st.drivers);
     
       const setN   = (i, v) => setDrivers(prev => prev.map((d, j) => j === i ? { ...d, name: v  } : d));
@@ -399,23 +716,23 @@
           <div style={{ marginBottom: 36 }}>
             <div style={{ fontSize: 44, marginBottom: 14 }}>🚗</div>
             <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 30, fontWeight: 700, lineHeight: 1.1 }}>
-              Caronas<br />
-              <span style={{ color: C.amber }}>Mogi ↔ Campinas</span>
+              {t("setup_title").split("\n").map((line, i) => (
+                <span key={i}>{i > 0 && <br />}{i === 1 ? <span style={{ color: C.amber }}>{line}</span> : line}</span>
+              ))}
             </h1>
             <p style={{ color: C.muted, marginTop: 12, fontSize: 14, lineHeight: 1.6 }}>
-              Configure os motoristas do grupo pra começar.<br />
-              Você pode editar isso depois nas configurações.
+              {t("setup_subtitle").split("\n").map((line, i) => <span key={i}>{i > 0 && <br />}{line}</span>)}
             </p>
           </div>
     
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {/* Me */}
             <div style={{ background: C.card, border: `1px solid ${C.amber}44`, borderRadius: 14, padding: "16px 18px" }}>
-              <div style={{ color: C.amber, fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>Você</div>
+              <div style={{ color: C.amber, fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 10 }}>{t("setup_you")}</div>
               <input
                 value={drivers[0].name}
                 onChange={e => setN(0, e.target.value)}
-                placeholder="Seu nome"
+                placeholder={t("setup_your_name")}
                 style={{ background: C.dim, border: `1px solid ${C.border}`, borderRadius: 9, padding: "11px 13px", color: C.text, fontSize: 15, width: "100%", outline: "none", fontFamily: "Barlow, sans-serif" }}
               />
             </div>
@@ -423,12 +740,12 @@
             {/* Others */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 18px" }}>
               <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase", marginBottom: 12 }}>
-                Outros Motoristas <span style={{ color: C.muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(opcional, pode preencher depois)</span>
+                {t("setup_other_drivers")} <span style={{ color: C.muted, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>{t("setup_optional")}</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {drivers.slice(1).map((d, i) => (
                   <input key={d.id} value={d.name} onChange={e => setN(i + 1, e.target.value)}
-                    placeholder={`Motorista ${i + 2}`}
+                    placeholder={t("setup_driver_n", i + 2)}
                     style={{ background: C.dim, border: `1px solid ${C.border}`, borderRadius: 9, padding: "11px 13px", color: C.text, fontSize: 15, width: "100%", outline: "none", fontFamily: "Barlow, sans-serif" }} />
                 ))}
               </div>
@@ -444,7 +761,7 @@
             fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.8,
             cursor: canGo ? "pointer" : "not-allowed",
           }}>
-            VAMOS LÁ →
+            {t("setup_go")}
           </button>
         </div>
       );
@@ -454,6 +771,8 @@
     //  CAR COST EDITOR (sub-component of TripCard)
     // ═══════════════════════════════════════════
     function CarCostEditor({ trip, st, upd }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const cc = trip.carCost;
       const [editing, setEditing] = useState(false);
       const [gas,  setGas]  = useState(String(cc?.gas  ?? DEF_GAS));
@@ -499,11 +818,11 @@
               <div style={{ fontSize: 11, color: "#F5A623", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>⛽ Custo do carro</div>
               <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>Combustível R$</div>
+                  <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{t("opts_fuel")} R$</div>
                   <input type="number" min="0" step="0.01" value={gas} onChange={e => setGas(e.target.value)} style={inpS} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>Pedágio R$</div>
+                  <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{t("opts_toll")} R$</div>
                   <input type="number" min="0" step="0.01" value={toll} onChange={e => setToll(e.target.value)} style={inpS} />
                 </div>
               </div>
@@ -529,6 +848,8 @@
     //  TRIP CARD
     // ═══════════════════════════════════════════
     function TripCard({ trip, st, upd, showDelete, weekDn }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const [open, setOpen] = useState(false);
       const [editingDate, setEditingDate] = useState(false);
       const [dateVal, setDateVal] = useState(trip.date);
@@ -551,7 +872,7 @@
       const saveDate = () => {
         if (!dateVal) return;
         const conflict = st.trips.some(t => t.id !== trip.id && t.date === dateVal);
-        if (conflict) { alert("Já existe uma viagem nessa data."); return; }
+        if (conflict) { alert(t("trip_duplicate_date")); return; }
         upd({ ...st, trips: st.trips.map(t => t.id === trip.id ? { ...t, date: dateVal, weekStart: getMonday(dateVal) } : t) });
         setEditingDate(false);
       };
@@ -577,17 +898,17 @@
             <div onClick={() => setOpen(o => !o)} style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: C.redDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>🪑</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{DIR[trip.direction]}</div>
+                <div style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{DIR(lang)[trip.direction]}</div>
                 <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                  <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date)}</span>{fmtFull(trip.date)} · com {driverDisplayName}
-                  {isCustom && <span style={{ color: C.amber, marginLeft: 6 }}>· {R(pricePerTrecho)}/trecho</span>}
+                  <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date, lang)}</span>{fmtFull(trip.date)} · {lang === 'en' ? 'with' : 'com'} {driverDisplayName}
+                  {isCustom && <span style={{ color: C.amber, marginLeft: 6 }}>{lang === "en" ? `· ${R(pricePerTrecho)}/leg` : `· ${R(pricePerTrecho)}/trecho`}</span>}
                   {trip.note && <div style={{ marginTop: 2, color: C.muted, fontStyle: "italic" }}>{trip.note}</div>}
                 </div>
               </div>
               {(() => {
                 const cancelled = !trip.paid && isCancelledByRide(trip.driverId);
                 const statusColor = trip.paid ? C.green : cancelled ? C.green : C.red;
-                const statusLabel = trip.paid ? "✓ pago" : cancelled ? "quitado c/ carona ✓" : "pendente";
+                const statusLabel = trip.paid ? t("trip_paid_label") : cancelled ? t("trip_quitado") : t("trip_pending_label");
                 return (
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: statusColor }}>{R(total)}</div>
@@ -604,7 +925,7 @@
                   {!editingDate ? (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 12, color: C.muted }}>📅 {fmtFull(trip.date)}</span>
-                      <button onClick={() => { setDateVal(trip.date); setEditingDate(true); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", padding: 0, fontFamily: "Barlow, sans-serif" }}>✏️ Editar data</button>
+                      <button onClick={() => { setDateVal(trip.date); setEditingDate(true); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", padding: 0, fontFamily: "Barlow, sans-serif" }}>{t("trip_edit_date")}</button>
                     </div>
                   ) : (
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -621,15 +942,15 @@
                     if (cancelled) {
                       return (
                         <div style={{ background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, borderRadius: 8, padding: "8px 14px", fontSize: 12, fontWeight: 600, fontFamily: "Barlow, sans-serif" }}>
-                          🤝 Quitado com carona
+                          {t("trip_quitado_btn")}
                         </div>
                       );
                     }
-                    return editBtn(trip.paid, trip.paid ? "✓ Pago" : "Marcar como pago", togglePaid, trip.paid ? C.red : C.green);
+                    return editBtn(trip.paid, trip.paid ? t("trip_undo_paid") : t("trip_mark_paid"), togglePaid, trip.paid ? C.red : C.green);
                   })()}
                   {showDelete && (
                     <button onClick={deleteTrip} style={{ background: C.redDim, border: `1px solid ${C.red}44`, color: C.red, borderRadius: 8, padding: "8px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif", flexShrink: 0 }}>
-                      🗑️ Apagar
+                      {t("trip_delete")}
                     </button>
                   )}
                 </div>
@@ -651,11 +972,11 @@
           <div onClick={() => setOpen(o => !o)} style={{ padding: "12px 14px", display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: C.amberDim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>🚗</div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{DIR[trip.direction]}</div>
+              <div style={{ fontSize: 14, color: C.text, fontWeight: 500 }}>{DIR(lang)[trip.direction]}</div>
               <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-                <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date)}</span>{fmtFull(trip.date)} · {pax.length} passageiro{pax.length !== 1 ? "s" : ""}
-                {hasCustom && <span style={{ color: C.amber, marginLeft: 4 }}>· preços variados</span>}
-                {hasDirVariant && <span style={{ color: C.blue, marginLeft: 4 }}>· trechos variados</span>}
+                <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date, lang)}</span>{fmtFull(trip.date)} · {pax.length} passageiro{pax.length !== 1 ? "s" : ""}
+                {hasCustom && <span style={{ color: C.amber, marginLeft: 4 }}>{lang === "en" ? "· custom prices" : "· preços variados"}</span>}
+                {hasDirVariant && <span style={{ color: C.blue, marginLeft: 4 }}>{lang === "en" ? "· mixed legs" : "· trechos variados"}</span>}
                 {trip.note && <div style={{ marginTop: 2, color: C.muted, fontStyle: "italic" }}>{trip.note}</div>}
               </div>
             </div>
@@ -669,7 +990,7 @@
                     {R(received)}<span style={{ color: C.muted, fontSize: 14 }}>/{R(total)}</span>
                   </div>
                   <div style={{ fontSize: 10, color: effectivelyDone ? C.green : C.muted, marginTop: 1 }}>
-                    {allUnpaidCancelled ? "tudo certo ✓" : `${paidCount}/${pax.length} pagaram`}
+                    {allUnpaidCancelled ? t("trip_counter_ok") : t("trip_paid_count", paidCount, pax.length)}
                   </div>
                 </div>
               );
@@ -684,7 +1005,7 @@
                   {!editingDate ? (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span style={{ fontSize: 12, color: C.muted }}>📅 {fmtFull(trip.date)}</span>
-                      <button onClick={() => { setDateVal(trip.date); setEditingDate(true); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", padding: 0, fontFamily: "Barlow, sans-serif" }}>✏️ Editar data</button>
+                      <button onClick={() => { setDateVal(trip.date); setEditingDate(true); }} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", padding: 0, fontFamily: "Barlow, sans-serif" }}>{t("trip_edit_date")}</button>
                     </div>
                   ) : (
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
@@ -703,8 +1024,8 @@
                       <div style={{ fontSize: 13, color: p.paid ? C.muted : C.text, flex: 1, minWidth: 0 }}>
                         <div>{p.name}</div>
                         <div style={{ display: "flex", gap: 5, marginTop: 2 }}>
-                          {p.direction && p.direction !== trip.direction && <span style={{ color: C.blue, fontSize: 10, background: C.blue+"18", borderRadius: 4, padding: "1px 5px" }}>{DIR[pDir]}</span>}
-                          {paxPrice(p) !== PRICE && <span style={{ color: C.amber, fontSize: 10, background: C.amberDim, borderRadius: 4, padding: "1px 5px" }}>R${paxPrice(p)}/trecho</span>}
+                          {p.direction && p.direction !== trip.direction && <span style={{ color: C.blue, fontSize: 10, background: C.blue+"18", borderRadius: 4, padding: "1px 5px" }}>{DIR(lang)[pDir]}</span>}
+                          {paxPrice(p) !== PRICE && <span style={{ color: C.amber, fontSize: 10, background: C.amberDim, borderRadius: 4, padding: "1px 5px" }}>{`R$${paxPrice(p)}`}{lang === "en" ? "/leg" : "/trecho"}</span>}
                           <span style={{ color: p.paid ? C.green : C.muted, fontSize: 10 }}>{R(paxPrice(p) * pm)}</span>
                         </div>
                       </div>
@@ -725,7 +1046,7 @@
                             borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 600,
                             cursor: "pointer", fontFamily: "Barlow, sans-serif", flexShrink: 0,
                           }}>
-                            {p.paid ? "✓ Recebido" : "Marcar recebido"}
+                            {p.paid ? t("trip_received") : t("trip_mark_received")}
                           </button>
                         );
                       })()}
@@ -734,12 +1055,12 @@
                 })}
                 {showDelete && (
                   <button onClick={deleteTrip} style={{ marginTop: 4, background: C.redDim, border: `1px solid ${C.red}44`, color: C.red, borderRadius: 8, padding: "8px 0", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif", width: "100%" }}>
-                    🗑️ Apagar viagem
+                    {t("trip_delete")}
                   </button>
                 )}
               </div>
               {trip.role === "motorista" && <CarCostEditor trip={trip} st={st} upd={upd} />}
-              <div style={{ fontSize: 11, color: C.muted, marginTop: 10 }}>Toque novamente em qualquer status para desfazer.</div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 10 }}>{lang === "en" ? "Tap any status again to undo." : "Toque novamente em qualquer status para desfazer."}</div>
             </div>
           )}
         </div>
@@ -752,6 +1073,8 @@
     //  HOME / DASHBOARD
     // ═══════════════════════════════════════════
     function Home({ st, upd, setTab }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const thisWeek = getMonday(todayStr());
       const [viewWeek, setViewWeek] = useState(thisWeek);
       const isCurrentWeek = viewWeek === thisWeek;
@@ -769,39 +1092,53 @@
       );
       const quitadoComCarona = !isCurrentWeek && hasUnpaidTrips && totalOwed === 0 && totalPending === 0;
     
+      const weekNum = getWeekNumber(viewWeek);
+    
       return (
         <div>
           {/* Hero header */}
-          <div style={{ padding: "52px 20px 18px", background: `linear-gradient(180deg, #1C1826 0%, ${C.bg} 100%)` }}>
+          <div style={{
+            padding: "52px 20px 18px",
+            background: isCurrentWeek
+              ? `linear-gradient(180deg, #2A1F0A 0%, #1A1508 60%, ${C.bg} 100%)`
+              : `linear-gradient(180deg, #1C1826 0%, ${C.bg} 100%)`,
+            transition: "background 0.3s",
+          }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               {/* Prev week */}
               <button onClick={() => setViewWeek(w => addWeeks(w, -1))}
-                style={{ background: "none", border: "none", color: C.muted, fontSize: 26, cursor: "pointer", padding: "0 4px", lineHeight: 1, flexShrink: 0 }}>
+                style={{ background: "none", border: "none", color: isCurrentWeek ? C.amber + "99" : C.muted, fontSize: 26, cursor: "pointer", padding: "0 4px", lineHeight: 1, flexShrink: 0 }}>
                 ‹
               </button>
     
               {/* Week label */}
               <div style={{ flex: 1, textAlign: "center", padding: "0 4px" }}>
-                <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase" }}>
-                  {isCurrentWeek ? "Semana atual" : "Semana anterior"}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 3 }}>
+                  <div style={{ color: isCurrentWeek ? C.amber : C.muted, fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>
+                    {t("home_week", weekNum)}
+                  </div>
+                  {isCurrentWeek && (
+                    <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 800, borderRadius: 4, padding: "2px 7px", letterSpacing: 0.5, textTransform: "uppercase" }}>
+                      {t("home_current_badge")}
+                    </span>
+                  )}
                 </div>
-                <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 700, color: C.text, marginTop: 2, lineHeight: 1 }}>
+                <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 24, fontWeight: 700, color: C.text, lineHeight: 1 }}>
                   {weekLabel(viewWeek)}
                 </h1>
                 {!isCurrentWeek && (
                   <button onClick={() => setViewWeek(thisWeek)}
                     style={{ background: "none", border: "none", color: C.amber, fontSize: 11, cursor: "pointer", fontFamily: "Barlow, sans-serif", padding: "4px 0 0", textDecoration: "underline" }}>
-                    voltar para semana atual
+                    {t("home_back_to_current")}
                   </button>
                 )}
-    
               </div>
     
               {/* Right side: trips badge + next btn */}
               <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                <div style={{ background: C.amber + "18", border: `1px solid ${C.amber}44`, borderRadius: 20, padding: "5px 10px" }}>
+                <div style={{ background: isCurrentWeek ? C.amber + "25" : C.amber + "18", border: `1px solid ${C.amber}${isCurrentWeek ? "66" : "44"}`, borderRadius: 20, padding: "5px 10px" }}>
                   <span style={{ color: C.amber, fontSize: 12, fontWeight: 600 }}>
-                    {weekTrips.length}&nbsp;{weekTrips.length === 1 ? "viagem" : "viagens"}
+                    {t("home_trips_n", weekTrips.length)}
                   </span>
                 </div>
                 <button onClick={() => setViewWeek(w => addWeeks(w, 1))} disabled={isCurrentWeek}
@@ -815,10 +1152,10 @@
           <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 14 }}>
             {/* Stats */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <StatCard label="Devo" value={R(totalOwed)} color={totalOwed > 0 ? C.red : C.green}
-                sub={totalOwed > 0 ? "para motoristas" : quitadoComCarona ? "Quitado com carona ✓" : "Tudo pago ✓"} />
-              <StatCard label="A receber" value={R(totalPending)} color={totalPending > 0 ? C.amber : C.green}
-                sub={totalPending > 0 ? "dos passageiros" : quitadoComCarona ? "Quitado com carona ✓" : "Tudo recebido ✓"} />
+              <StatCard label={t("home_owe")} value={R(totalOwed)} color={totalOwed > 0 ? C.red : C.green}
+                sub={totalOwed > 0 ? t("home_to_drivers") : quitadoComCarona ? t("home_cancelled_ride") : t("home_all_paid")} />
+              <StatCard label={t("home_to_receive")} value={R(totalPending)} color={totalPending > 0 ? C.amber : C.green}
+                sub={totalPending > 0 ? t("home_from_pax") : quitadoComCarona ? t("home_cancelled_ride") : t("home_all_received")} />
             </div>
     
             {/* CTA */}
@@ -828,19 +1165,18 @@
               fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 1,
               cursor: "pointer", width: "100%", textTransform: "uppercase",
             }}>
-              + Registrar Viagem
+              {t("home_register")}
             </button>
     
-            {/* Trips */}
             {sorted.length > 0 ? (
               <div>
-                <SectionLabel>Viagens {isCurrentWeek ? "desta semana" : "da semana"}</SectionLabel>
+                <SectionLabel>{isCurrentWeek ? t("home_trips_this_week") : t("home_trips_week")}</SectionLabel>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {sorted.map(t => <TripCard key={t.id} trip={t} st={st} upd={upd} showDelete weekDn={driverNet} />)}
                 </div>
               </div>
             ) : (
-              <EmptyState icon="🛣️" text="Nenhuma viagem nesta semana" />
+              <EmptyState icon="🛣️" text={t("home_empty")} />
             )}
           </div>
         </div>
@@ -852,6 +1188,8 @@
     //  ADD TRIP SCREEN
     // ═══════════════════════════════════════════
     function AddTrip({ st, upd, setTab }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const [date, setDate] = useState(todayStr());
       const [dir, setDir] = useState("ambas");
       const [role, setRole] = useState("passageiro");
@@ -916,7 +1254,7 @@
         };
         const duplicate = st.trips.some(t => t.date === date);
         if (duplicate) {
-          setToast("Já existe uma viagem nessa data.");
+          setToast(t("add_duplicate"));
           return;
         }
         upd({ ...st, trips: [trip, ...st.trips] });
@@ -931,61 +1269,61 @@
         <div>
           <div style={{ padding: "52px 20px 20px" }}>
             <button onClick={() => setTab("home")} style={{ background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 13, padding: 0, marginBottom: 14, display: "flex", alignItems: "center", gap: 4 }}>
-              ← Voltar
+              {t("add_back")}
             </button>
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>
-              Registrar Viagem
+              {t("add_title")}
             </h2>
           </div>
     
           <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 12 }}>
             {/* Date */}
             <div style={cardS}>
-              <label style={lbl}>Data</label>
+              <label style={lbl}>{t("add_date")}</label>
               <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inp} />
             </div>
     
             {/* Direction */}
             <div style={cardS}>
-              <label style={lbl}>Trecho</label>
+              <label style={lbl}>{t("add_leg")}</label>
               <div style={{ display: "flex", gap: 6 }}>
-                <Pill label="Ida →" active={dir === "ida"} onClick={() => setDir("ida")} />
-                <Pill label="← Volta" active={dir === "volta"} onClick={() => setDir("volta")} />
-                <Pill label="Ida e Volta" active={dir === "ambas"} onClick={() => setDir("ambas")} />
+                <Pill label={t("add_leg_there")} active={dir === "ida"} onClick={() => setDir("ida")} />
+                <Pill label={t("add_leg_back")} active={dir === "volta"} onClick={() => setDir("volta")} />
+                <Pill label={t("add_leg_both")} active={dir === "ambas"} onClick={() => setDir("ambas")} />
               </div>
               {dir === "ambas" && (
                 <div style={{ marginTop: 10, color: C.amber, fontSize: 12 }}>
-                  ↑ Vale por 2 trechos = {R(PRICE * 2)}
+                  {t("add_leg_both_note", R(PRICE * 2))}
                 </div>
               )}
             </div>
     
             {/* Role */}
             <div style={cardS}>
-              <label style={lbl}>Você foi...</label>
+              <label style={lbl}>{t("add_role")}</label>
               <div style={{ display: "flex", gap: 6 }}>
-                <Pill label="🪑 Fui de carona" active={role === "passageiro"} onClick={() => setRole("passageiro")} />
-                <Pill label="🚗 Fui motorista" active={role === "motorista"} onClick={() => setRole("motorista")} />
+                <Pill label={t("add_passenger")} active={role === "passageiro"} onClick={() => setRole("passageiro")} />
+                <Pill label={t("add_driver")} active={role === "motorista"} onClick={() => setRole("motorista")} />
               </div>
             </div>
     
             {/* Passageiro: quem dirigiu */}
             {role === "passageiro" && (
               <div style={cardS}>
-                <label style={lbl}>Quem dirigiu?</label>
+                <label style={lbl}>{t("add_who_drove")}</label>
                 <select
                   value={driverId}
                   onChange={e => { setDriverId(e.target.value); setDriverCustomName(""); }}
                   style={{ ...inp, cursor: "pointer" }}
                 >
                   {others.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                  <option value="__other__">Outro (digitar nome)</option>
+                  <option value="__other__">{t("add_other_driver")}</option>
                 </select>
                 {isCustomDriver && (
                   <input
                     value={driverCustomName}
                     onChange={e => setDriverCustomName(e.target.value)}
-                    placeholder="Nome de quem dirigiu"
+                    placeholder={t("add_driver_name_ph")}
                     style={{ ...inp, marginTop: 8, borderColor: driverCustomName.trim() ? C.amber+"88" : C.border }}
                     autoFocus
                   />
@@ -1008,7 +1346,7 @@
                 </div>
                 <div style={{ marginTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <span style={{ color: C.text, fontSize: 14 }}>
-                    Já paguei <strong style={{ color: C.amber }}>{R(parsedTripPrice * mult)}</strong>
+                    {lang === "en" ? "Already paid" : "Já paguei"} <strong style={{ color: C.amber }}>{R(parsedTripPrice * mult)}</strong>
                   </span>
                   <Toggle on={paid} onChange={setPaid} />
                 </div>
@@ -1018,7 +1356,7 @@
             {/* Motorista: passageiros */}
             {role === "motorista" && (
               <div style={cardS}>
-                <label style={lbl}>Passageiros</label>
+                <label style={lbl}>{t("add_passengers")}</label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {pax.map((p, i) => {
                     const pp = parseFloat(p.price) || PRICE;
@@ -1042,13 +1380,13 @@
                             >
                               <option value="">— Nome do passageiro —</option>
                               {others.map(d => <option key={d.id} value={d.id}>{d.name} 🚗</option>)}
-                              <option value="__custom__">Outro (digitar)</option>
+                              <option value="__custom__">{t("add_pax_other")}</option>
                             </select>
                           ) : (
                             <input
                               value={p.name}
                               onChange={e => updPax(p.id, "name", e.target.value)}
-                              placeholder={`Nome do passageiro ${i + 1}`}
+                              placeholder={t("add_pax_name_ph", i + 1)}
                               style={{ ...inp, flex: 1, background: "transparent", border: `1px solid ${C.border}` }}
                             />
                           )}
@@ -1061,7 +1399,7 @@
                           <input
                             value={p.name}
                             onChange={e => updPax(p.id, "name", e.target.value)}
-                            placeholder="Nome do passageiro"
+                            placeholder=t("add_pax_name_free_ph")
                             style={{ ...inp, background: "transparent", border: `1px solid ${C.border}`, marginBottom: 8 }}
                           />
                         )}
@@ -1090,10 +1428,10 @@
                                 border: `1px solid ${isCustom ? C.amber + "88" : C.border}`,
                                 color: isCustom ? C.amber : C.text }}
                             />
-                            <span style={{ color: C.muted, fontSize: 11 }}>/trecho · total <strong style={{ color: isCustom ? C.amber : C.text }}>{R(pp * pMult)}</strong></span>
+                            <span style={{ color: C.muted, fontSize: 11 }}>{lang === "en" ? "/leg" : "/trecho"} · {lang === "en" ? "total" : "total"} <strong style={{ color: isCustom ? C.amber : C.text }}>{R(pp * pMult)}</strong></span>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-                            <span style={{ fontSize: 11, color: C.muted }}>pago</span>
+                            <span style={{ fontSize: 11, color: C.muted }}>{t("add_paid_label")}</span>
                             <Toggle on={p.paid} onChange={v => updPax(p.id, "paid", v)} />
                           </div>
                         </div>
@@ -1111,11 +1449,7 @@
                 </div>
                 {pax.filter(p => p.name.trim() || p.driverId).length > 0 && (
                   <div style={{ marginTop: 12, color: C.amber, fontSize: 12 }}>
-                    Total a receber: {R(pax.filter(p => p.name.trim() || (p.driverId && p.driverId !== "__custom__")).reduce((s, p) => {
-                      const pd = p.direction || dir;
-                      const pm = pd === "ambas" ? 2 : 1;
-                      return s + (parseFloat(p.price) || PRICE) * pm;
-                    }, 0))}
+                    {t("add_total_receive", R(pax.filter(p => p.name.trim() || (p.driverId && p.driverId !== "__custom__")).reduce((s, p) => { const pd = p.direction || dir; const pm = pd === "ambas" ? 2 : 1; return s + (parseFloat(p.price) || PRICE) * pm; }, 0)))}
                   </div>
                 )}
               </div>
@@ -1126,8 +1460,8 @@
               <div style={{ background: C.card, border: `1px solid ${includeCarCost ? "#7C5C2E55" : C.border}`, borderRadius: 14, padding: "16px 18px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: includeCarCost ? 14 : 0 }}>
                   <div>
-                    <div style={{ fontSize: 14, color: C.text, fontWeight: 600 }}>⛽ Custo do carro</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Combustível + pedágio pra sua mãe</div>
+                    <div style={{ fontSize: 14, color: C.text, fontWeight: 600 }}>{t("add_car_cost")}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{t("add_car_cost_sub")}</div>
                   </div>
                   <Toggle on={includeCarCost} onChange={setIncludeCarCost} />
                 </div>
@@ -1135,7 +1469,7 @@
                   <div>
                     <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>Combustível</div>
+                        <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>{t("add_fuel")}</div>
                         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                           <span style={{ color: C.muted, fontSize: 12 }}>R$</span>
                           <input type="number" min="0" step="0.01" value={carGas} onChange={e => setCarGas(e.target.value)}
@@ -1143,7 +1477,7 @@
                         </div>
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>Pedágio</div>
+                        <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>{t("add_toll")}</div>
                         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                           <span style={{ color: C.muted, fontSize: 12 }}>R$</span>
                           <input type="number" min="0" step="0.01" value={carToll} onChange={e => setCarToll(e.target.value)}
@@ -1154,7 +1488,7 @@
                     <div style={{ background: C.dim, borderRadius: 9, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                       <span style={{ fontSize: 13, color: C.text }}>Total: <strong style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, color: "#F5A623" }}>R$&nbsp;{totalCarCost.toFixed(2)}</strong></span>
                       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                        <span style={{ fontSize: 11, color: C.muted }}>Já paguei</span>
+                        <span style={{ fontSize: 11, color: C.muted }}>{t("add_car_cost_paid")}</span>
                         <Toggle on={carCostPaid} onChange={setCarCostPaid} />
                       </div>
                     </div>
@@ -1166,13 +1500,13 @@
             {/* Note field */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 18px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <label style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase" }}>Observação <span style={{ color: C.dim, fontWeight: 400 }}>(opcional)</span></label>
+                <label style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase" }}>{t("add_note")} <span style={{ color: C.dim, fontWeight: 400 }}>{lang === "en" ? "(optional)" : "(opcional)"}</span></label>
                 <span style={{ fontSize: 11, color: note.length > 30 ? C.amber : C.muted }}>{note.length}/35</span>
               </div>
               <input
                 value={note}
                 onChange={e => setNote(e.target.value.slice(0, 35))}
-                placeholder="Ex: pagamento pendente, horário diferente…"
+                placeholder=t("add_note_ph")
                 maxLength={35}
                 style={{ background: C.dim, border: `1px solid ${note ? C.amber+"44" : C.border}`, borderRadius: 9, padding: "9px 13px", color: C.text, fontSize: 13, width: "100%", outline: "none", fontFamily: "Barlow, sans-serif" }}
               />
@@ -1187,7 +1521,7 @@
               fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: 0.8,
               cursor: canSave ? "pointer" : "not-allowed", width: "100%", textTransform: "uppercase",
             }}>
-              SALVAR VIAGEM ✓
+              {t("add_save")}
             </button>
           </div>
           <div style={{ height: 20 }} />
@@ -1199,6 +1533,8 @@
     //  SALDOS SCREEN
     // ═══════════════════════════════════════════
     function Saldos({ st, upd }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const [view, setView]     = useState("saldos");   // "saldos" | "extrato"
       const [scope, setScope]   = useState("week");
       const [expanded, setExpanded] = useState({});
@@ -1284,11 +1620,11 @@
       return (
         <div>
           <div style={{ padding: "52px 20px 16px" }}>
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>Saldos</h2>
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>{t("saldos_title")}</h2>
             {/* View toggle */}
             <div style={{ display: "flex", gap: 6, marginTop: 14, background: C.dim, borderRadius: 12, padding: 4 }}>
-              {tabBtn("saldos", "💰 Saldos")}
-              {tabBtn("extrato", "📊 Extrato")}
+              {tabBtn("saldos", t("saldos_tab_balances"))}
+              {tabBtn("extrato", t("saldos_tab_extratos"))}
             </div>
           </div>
     
@@ -1296,13 +1632,13 @@
           {view === "saldos" && (
             <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 14 }}>
               <div style={{ display: "flex", gap: 6 }}>
-                {scopeBtn("week", "Esta semana")}
-                {scopeBtn("all", "Geral")}
+                {scopeBtn("week", t("saldos_this_week"))}
+                {scopeBtn("all", t("saldos_all"))}
               </div>
     
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <StatCard label="Saldo líquido devo" value={R(totalIOwePending)} color={totalIOwePending > 0 ? C.red : C.green} />
-                <StatCard label="A receber" value={R(totalTheyOwePending)} color={totalTheyOwePending > 0 ? C.amber : C.green} />
+                <StatCard label={t("saldos_net_owe")} value={R(totalIOwePending)} color={totalIOwePending > 0 ? C.red : C.green} />
+                <StatCard label={t("home_to_receive")} value={R(totalTheyOwePending)} color={totalTheyOwePending > 0 ? C.amber : C.green} />
               </div>
     
               {allDriverIds.length > 0 && (
@@ -1355,7 +1691,7 @@
                                       }
                                     }}
                                     style={{ background: copiedPix === dId ? C.greenDim : C.dim, border: `1px solid ${copiedPix === dId ? C.green+"44" : C.border}`, color: copiedPix === dId ? C.green : C.muted, borderRadius: 6, padding: "3px 9px", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif", flexShrink: 0, whiteSpace: "nowrap" }}>
-                                    {copiedPix === dId ? "✓ Copiado!" : "📋 Copiar Pix"}
+                                    {copiedPix === dId ? t("saldos_pix_copied") : t("extrato_mom_copy_pix")}
                                   </button>
                                 </div>
                               )}
@@ -1392,12 +1728,12 @@
                                     return (
                                       <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
                                         <div style={{ fontSize: 13, color: t.paid ? C.muted : C.text }}>
-                                          <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(t.date)}</span>{fmtFull(t.date)} · {DIR[t.direction]}
+                                          <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(t.date, lang)}</span>{fmtFull(t.date)} · {DIR(lang)[t.direction]}
                                           {t.paid && <span style={{ color: C.green, marginLeft: 6, fontSize: 11 }}>✓ pago</span>}
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                           <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: t.paid ? C.muted : C.red }}>{R(tripPrice(t) * x)}</span>
-                                          {!t.paid && <button onClick={() => markPaid(t.id)} style={btnGreen}>Paguei ✓</button>}
+                                          {!t.paid && <button onClick={() => markPaid(t.id)} style={btnGreen}>{t("extrato_pay")}</button>}
                                         </div>
                                       </div>
                                     );
@@ -1415,7 +1751,7 @@
                                       return (
                                         <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
                                           <div style={{ fontSize: 13, color: p.paid ? C.muted : C.text }}>
-                                            <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date)}</span>{fmtFull(trip.date)} · {DIR[pDir]}
+                                            <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date, lang)}</span>{fmtFull(trip.date)} · {DIR(lang)[pDir]}
                                             {p.paid && <span style={{ color: C.green, marginLeft: 6, fontSize: 11 }}>✓ recebido</span>}
                                           </div>
                                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1450,13 +1786,13 @@
                 if (!paxTrips.length) return null;
                 return (
                   <div>
-                    <SectionLabel>A receber — passageiros avulsos</SectionLabel>
+                    <SectionLabel>{t("extrato_received")} — {t("saldos_pax_others")}</SectionLabel>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {paxTrips.sort((a, b) => b.date.localeCompare(a.date)).map(trip => {
                         const paxList = (trip.passengers||[]).filter(p => !p.driverId || p.driverId === "__custom__");
                         return (
                           <div key={trip.id} style={cardS}>
-                            <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}><span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date)}</span>{fmtFull(trip.date)} · {DIR[trip.direction]}</div>
+                            <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}><span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date, lang)}</span>{fmtFull(trip.date)} · {DIR(lang)[trip.direction]}</div>
                             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                               {paxList.map(p => {
                                 const pm = paxMult(p, trip.direction);
@@ -1466,8 +1802,8 @@
                                     <div style={{ fontSize: 14, color: p.paid ? C.muted : C.text }}>
                                       {p.name}
                                       <div style={{ display: "flex", gap: 5, marginTop: 2 }}>
-                                        {p.direction && p.direction !== trip.direction && <span style={{ color: C.blue, fontSize: 10, background: C.blue+"18", borderRadius: 4, padding: "1px 5px" }}>{DIR[pDir]}</span>}
-                                        {paxPrice(p) !== PRICE && <span style={{ color: C.amber, fontSize: 10, background: C.amberDim, borderRadius: 4, padding: "1px 5px" }}>R${paxPrice(p)}/trecho</span>}
+                                        {p.direction && p.direction !== trip.direction && <span style={{ color: C.blue, fontSize: 10, background: C.blue+"18", borderRadius: 4, padding: "1px 5px" }}>{DIR(lang)[pDir]}</span>}
+                                        {paxPrice(p) !== PRICE && <span style={{ color: C.amber, fontSize: 10, background: C.amberDim, borderRadius: 4, padding: "1px 5px" }}>{`R$${paxPrice(p)}`}{lang === "en" ? "/leg" : "/trecho"}</span>}
                                       </div>
                                     </div>
                                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -1530,7 +1866,7 @@
                     <div style={{ background: C.dim, borderRadius: 10, padding: "10px 12px" }}>
                       <div style={{ color: C.muted, fontSize: 10, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 4 }}>Recebi</div>
                       <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 700, color: C.green }}>{R(flowTotals.earnedPaid)}</div>
-                      {(flowTotals.earnedPending - earnedCancelledTotal) > 0 && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{R(flowTotals.earnedPending - earnedCancelledTotal)} a receber</div>}
+                      {(flowTotals.earnedPending - earnedCancelledTotal) > 0 && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{lang === "en" ? `${R(flowTotals.earnedPending - earnedCancelledTotal)} to receive` : `${R(flowTotals.earnedPending - earnedCancelledTotal)} a receber`}</div>}
                       {earnedCancelledTotal > 0 && <div style={{ fontSize: 10, color: C.green, marginTop: 2 }}>+{R(earnedCancelledTotal)} quitado c/ carona</div>}
                     </div>
                     <div style={{ background: C.dim, borderRadius: 10, padding: "10px 12px" }}>
@@ -1552,9 +1888,18 @@
                   <div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                       <div style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: 1.3, textTransform: "uppercase" }}>⛽ Devo pra minha mãe</div>
-                      {totalMomDebt > 0
-                        ? <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: "#F5A623" }}>{R(totalMomDebt)} pendente</span>
-                        : <span style={{ color: C.green, fontSize: 13, fontWeight: 600 }}>✓ Tudo pago</span>}
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {st.momPix && totalMomDebt > 0 && (
+                          <button onClick={() => {
+                            try { navigator.clipboard.writeText(st.momPix); } catch { const ta = document.createElement("textarea"); ta.value = st.momPix; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); }
+                          }} style={{ background: "rgba(245,166,35,0.12)", border: "1px solid #F5A62344", color: "#F5A623", borderRadius: 7, padding: "4px 10px", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "Barlow, sans-serif" }}>
+                            📋 Copiar Pix
+                          </button>
+                        )}
+                        {totalMomDebt > 0
+                          ? <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: "#F5A623" }}>{R(totalMomDebt)} pendente</span>
+                          : <span style={{ color: C.green, fontSize: 13, fontWeight: 600 }}>✓ Tudo pago</span>}
+                      </div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {Object.entries(momDebt).sort((a, b) => b[0].localeCompare(a[0])).map(([mon, v]) => {
@@ -1570,11 +1915,11 @@
                               <div style={{ textAlign: "left" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                   <span style={{ fontSize: 14, color: C.text, fontWeight: 600, textTransform: "capitalize" }}>{monthName}</span>
-                                  {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>ATUAL</span>}
-                                  {pending === 0 && <span style={{ background: C.green, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>PAGO ✓</span>}
+                                  {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{lang === "en" ? "CURRENT" : "ATUAL"}</span>}
+                                  {pending === 0 && <span style={{ background: C.green, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{t("extrato_badge_paid")}</span>}
                                 </div>
                                 <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
-                                  {monTrips.length} dia{monTrips.length !== 1 ? "s" : ""} como motorista · total {R(v.total)}
+                                  {monTrips.length} {lang === "en" ? `day${monTrips.length !== 1 ? "s" : ""} as driver · total` : `dia${monTrips.length !== 1 ? "s" : ""} como motorista · total`} {R(v.total)}
                                 </div>
                               </div>
                               <div style={{ textAlign: "right" }}>
@@ -1591,7 +1936,7 @@
                                   return (
                                     <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
                                       <div>
-                                        <div style={{ fontSize: 13, color: t.carCost.paid ? C.muted : C.text }}><span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(t.date)}</span>{fmtFull(t.date)} · {DIR[t.direction]}</div>
+                                        <div style={{ fontSize: 13, color: t.carCost.paid ? C.muted : C.text }}><span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(t.date, lang)}</span>{fmtFull(t.date)} · {DIR(lang)[t.direction]}</div>
                                         <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>
                                           ⛽ {R(t.carCost.gas)} + 🛣️ {R(t.carCost.toll)}
                                           {t.carCost.paid && <span style={{ color: C.green, marginLeft: 6 }}>✓ pago</span>}
@@ -1601,7 +1946,7 @@
                                         <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, fontWeight: 700, color: t.carCost.paid ? C.muted : "#F5A623" }}>{R(cc)}</span>
                                         <button onClick={() => t.carCost.paid ? unmarkCarPaid(t.id) : markCarPaid(t.id)}
                                           style={{ background: t.carCost.paid ? C.dim : C.greenDim, border: `1px solid ${t.carCost.paid ? C.border : C.green+"44"}`, color: t.carCost.paid ? C.muted : C.green, borderRadius: 7, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontFamily: "Barlow, sans-serif", fontWeight: 600 }}>
-                                          {t.carCost.paid ? "Desfazer" : "Paguei ✓"}
+                                          {t.carCost.paid ? t("extrato_undo") : t("extrato_pay")}
                                         </button>
                                       </div>
                                     </div>
@@ -1642,7 +1987,7 @@
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                 <span style={{ fontSize: 14, color: C.text, fontWeight: 600, textTransform: "capitalize" }}>{monthName}</span>
-                                {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>ATUAL</span>}
+                                {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{lang === "en" ? "CURRENT" : "ATUAL"}</span>}
                               </div>
                               <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 20, fontWeight: 700, color: net <= 0 ? C.green : C.red }}>
                                 {net <= 0 ? "R$ 0" : R(net)} <span style={{ fontSize: 11, color: C.muted, fontWeight: 400 }}>custo real</span>
@@ -1704,9 +2049,9 @@
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                                 <span style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>{weekLabel(week)}</span>
-                                {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>ATUAL</span>}
-                                {cancelledByRide && <span style={{ background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>QUITADO COM CARONA ✓</span>}
-                                {hasRealDebt && <span style={{ background: C.redDim, border: `1px solid ${C.red}33`, color: C.red, fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>PENDENTE</span>}
+                                {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{lang === "en" ? "CURRENT" : "ATUAL"}</span>}
+                                {cancelledByRide && <span style={{ background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{t("extrato_badge_quitado")}</span>}
+                                {hasRealDebt && <span style={{ background: C.redDim, border: `1px solid ${C.red}33`, color: C.red, fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px" }}>{t("extrato_badge_pending")}</span>}
                               </div>
                               <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 700, color: net <= 0 ? C.green : C.red, flexShrink: 0, marginLeft: 8 }}>
                                 {net <= 0 ? "R$ 0,00" : R(net)}
@@ -1738,7 +2083,7 @@
                   </div>
                 )}
     
-                {flowWeeks.length === 0 && <EmptyState icon="📊" text="Nenhum pagamento registrado ainda" />}
+                {flowWeeks.length === 0 && <EmptyState icon="📊" text={t("extrato_empty")} />}
               </div>
             );
           })()}
@@ -1752,6 +2097,8 @@
     //  HISTORY SCREEN
     // ═══════════════════════════════════════════
     function Hist({ st, upd }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const thisWeek = getMonday(todayStr());
       const [expanded, setExpanded] = useState(null);
     
@@ -1765,7 +2112,7 @@
       return (
         <div>
           <div style={{ padding: "52px 20px 20px" }}>
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>Histórico</h2>
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>{t("hist_title")}</h2>
           </div>
     
           <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1786,13 +2133,13 @@
                     <div style={{ textAlign: "left" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 18, fontWeight: 700, color: C.text }}>{weekLabel(week)}</span>
-                        {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px", letterSpacing: 0.5 }}>ATUAL</span>}
+                        {isCurrent && <span style={{ background: C.amber, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 4, padding: "2px 6px", letterSpacing: 0.5 }}>{lang === "en" ? "CURRENT" : "ATUAL"}</span>}
                       </div>
-                      <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>{trips.length}&nbsp;{trips.length === 1 ? "viagem" : "viagens"}</div>
+                      <div style={{ color: C.muted, fontSize: 12, marginTop: 3 }}>{t("hist_trips_n", trips.length)}</div>
                     </div>
                     <div style={{ textAlign: "right" }}>
                       {owedTotal > 0 && <div style={{ color: C.red, fontSize: 13, fontWeight: 600 }}>−{R(owedTotal)}</div>}
-                      {pendingTotal > 0 && <div style={{ color: C.amber, fontSize: 13, fontWeight: 600 }}>+{R(pendingTotal)} a receber</div>}
+                      {pendingTotal > 0 && <div style={{ color: C.amber, fontSize: 13, fontWeight: 600 }}>+{lang === "en" ? `+${R(pendingTotal)} to receive` : `+${R(pendingTotal)} a receber`}</div>}
                       {owedTotal === 0 && pendingTotal === 0 && <div style={{ color: C.green, fontSize: 13 }}>✓ Zerado</div>}
                       <div style={{ color: C.muted, fontSize: 12, marginTop: 2 }}>{isOpen ? "▲" : "▼"}</div>
                     </div>
@@ -1809,7 +2156,7 @@
               );
             })}
     
-            {weeks.length === 0 && <EmptyState icon="📅" text="Nenhuma viagem registrada ainda" />}
+            {weeks.length === 0 && <EmptyState icon="📅" text={t("hist_empty")} />}
           </div>
           <div style={{ height: 20 }} />
         </div>
@@ -1820,6 +2167,8 @@
     //  OPCOES SCREEN
     // ═══════════════════════════════════════════
     function Opcoes({ st, upd }) {
+      const lang = st?.lang || "pt";
+      const t = mkT(lang);
       const [drivers, setDrivers] = useState(st.drivers.length < 5
         ? [...st.drivers, ...Array.from({ length: 5 - st.drivers.length }, (_, i) => ({ id: `d${st.drivers.length + i + 1}`, name: "" }))]
         : st.drivers
@@ -1827,6 +2176,7 @@
       const defCC = st.carCosts || { gas: DEF_GAS, toll: DEF_TOLL };
       const [gasVal,  setGasVal]  = useState(String(defCC.gas));
       const [tollVal, setTollVal] = useState(String(defCC.toll));
+      const [momPixVal, setMomPixVal] = useState(st.momPix || "");
       const [saved, setSaved] = useState(false);
       const [ccSaved, setCcSaved] = useState(false);
     
@@ -1841,7 +2191,7 @@
       };
     
       const saveCarCosts = () => {
-        upd({ ...st, carCosts: { gas: parseFloat(gasVal) || DEF_GAS, toll: parseFloat(tollVal) || DEF_TOLL } });
+        upd({ ...st, carCosts: { gas: parseFloat(gasVal) || DEF_GAS, toll: parseFloat(tollVal) || DEF_TOLL }, momPix: momPixVal.trim() });
         setCcSaved(true);
         setTimeout(() => setCcSaved(false), 2000);
       };
@@ -1890,7 +2240,7 @@
             setImportErr(null);
             setTimeout(() => setImportOk(false), 3000);
           } catch {
-            setImportErr("Arquivo inválido. Use um backup gerado por este app.");
+            setImportErr(t("opts_import_err"));
             setTimeout(() => setImportErr(null), 4000);
           }
         };
@@ -1905,7 +2255,7 @@
       return (
         <div>
           <div style={{ padding: "52px 20px 20px" }}>
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>Opções</h2>
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 28, fontWeight: 700, color: C.text }}>{t("opts_title")}</h2>
           </div>
     
           <div style={{ padding: "0 20px", display: "flex", flexDirection: "column", gap: 14 }}>
@@ -1920,7 +2270,7 @@
                       </div>
                       <input
                         value={d.name} onChange={e => setN(i, e.target.value)}
-                        placeholder={i === 0 ? "Seu nome" : `Motorista ${i + 1}`}
+                        placeholder={i === 0 ? t("opts_your_name") : `Motorista ${i + 1}`}
                         style={{ ...inp, borderColor: i === 0 ? C.amber + "44" : C.border, padding: "9px 12px", fontSize: 14 }}
                         disabled={i === 0}
                       />
@@ -1945,7 +2295,7 @@
                 borderRadius: 9, padding: "10px 0", fontSize: 14, fontWeight: 600,
                 cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
               }}>
-                {saved ? "✓ Salvo!" : "Salvar motoristas"}
+                {saved ? t("opts_saved") : t("opts_save_drivers")}
               </button>
             </div>
     
@@ -1975,6 +2325,16 @@
                   R$&nbsp;{((parseFloat(gasVal)||0) + (parseFloat(tollVal)||0)).toFixed(2)}
                 </strong>
               </div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 5 }}>Pix da sua mãe</div>
+                <input
+                  type="text"
+                  value={momPixVal}
+                  onChange={e => setMomPixVal(e.target.value)}
+                  placeholder=t("opts_mom_pix_ph")
+                  style={{ ...inp, padding: "9px 12px", fontSize: 14, width: "100%" }}
+                />
+              </div>
               <button onClick={saveCarCosts} style={{
                 background: ccSaved ? C.greenDim : "rgba(245,166,35,0.12)",
                 color: ccSaved ? C.green : "#F5A623",
@@ -1982,38 +2342,53 @@
                 borderRadius: 9, padding: "10px 0", fontSize: 14, fontWeight: 600,
                 cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
               }}>
-                {ccSaved ? "✓ Salvo!" : "Salvar valores padrão"}
+                {ccSaved ? t("opts_saved") : t("opts_save_car")}
               </button>
             </div>
     
             <div style={cardS}>
-              <label style={lbl}>Backup de dados</label>
+              <label style={lbl}>{t("opts_language")}</label>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[["pt", "🇧🇷 Português"], ["en", "🇺🇸 English"]].map(([code, label]) => (
+                  <button key={code} onClick={() => { localStorage.setItem('caroninhas-lang', code); upd({ ...st, lang: code }); }} style={{
+                    flex: 1, background: (st.lang || "pt") === code ? C.amberDim : C.dim,
+                    border: `1px solid ${(st.lang || "pt") === code ? C.amber+"66" : C.border}`,
+                    color: (st.lang || "pt") === code ? C.amber : C.muted,
+                    borderRadius: 9, padding: "10px 0", fontSize: 13, fontWeight: (st.lang || "pt") === code ? 700 : 400,
+                    cursor: "pointer", fontFamily: "Barlow, sans-serif",
+                  }}>{label}</button>
+                ))}
+              </div>
+            </div>
+    
+            <div style={cardS}>
+              <label style={lbl}>{t("opts_backup")}</label>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 <button onClick={exportBackup} style={{
                   background: "rgba(34,201,160,0.1)", border: `1px solid ${C.green}44`,
                   color: C.green, borderRadius: 9, padding: "11px 0",
                   fontSize: 14, fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
                 }}>
-                  ⬇️ Exportar backup (.json)
+                  {t("opts_export")}
                 </button>
                 <button onClick={() => fileRef.current?.click()} style={{
                   background: C.dim, border: `1px solid ${C.border}`,
                   color: C.muted, borderRadius: 9, padding: "11px 0",
                   fontSize: 14, fontWeight: 600, cursor: "pointer", width: "100%", fontFamily: "Barlow, sans-serif",
                 }}>
-                  ⬆️ Importar backup (.json)
+                  {t("opts_import")}
                 </button>
                 <input ref={fileRef} type="file" accept=".json,application/json" onChange={importBackup} style={{ display: "none" }} />
-                {importOk && <div style={{ fontSize: 12, color: C.green, textAlign: "center" }}>✓ Dados restaurados com sucesso!</div>}
+                {importOk && <div style={{ fontSize: 12, color: C.green, textAlign: "center" }}>{t("opts_import_ok")}</div>}
                 {importErr && <div style={{ fontSize: 12, color: C.red, textAlign: "center" }}>{importErr}</div>}
                 <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5 }}>
-                  Exporte regularmente para não perder dados se trocar de celular ou limpar o cache do navegador.
+                  {t("opts_backup_note")}
                 </div>
               </div>
             </div>
     
             <div style={{ ...cardS, borderColor: C.red + "33" }}>
-              <label style={{ ...lbl, color: C.red }}>Zona de perigo</label>
+              <label style={{ ...lbl, color: C.red }}>{t("opts_danger")}</label>
               {!showDanger ? (
                 <button onClick={() => setShowDanger(true)} style={{
                   background: C.dim, border: `1px solid ${C.border}`,
@@ -2029,11 +2404,11 @@
                     type="password"
                     value={dangerPass}
                     onChange={e => { setDangerPass(e.target.value); setDangerErr(false); }}
-                    placeholder="Senha"
+                    placeholder=t("opts_delete_pass_ph")
                     style={{ background: C.dim, border: `1px solid ${dangerErr ? C.red : C.border}`, borderRadius: 9, padding: "10px 13px", color: C.text, fontSize: 15, outline: "none", fontFamily: "Barlow, sans-serif" }}
                     autoFocus
                   />
-                  {dangerErr && <div style={{ fontSize: 12, color: C.red }}>Senha incorreta. Tente novamente.</div>}
+                  {dangerErr && <div style={{ fontSize: 12, color: C.red }}>{t("opts_delete_wrong")}</div>}
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={clearAll} style={{
                       flex: 1, background: C.redDim, border: `1px solid ${C.red}44`,
@@ -2058,7 +2433,7 @@
               <div style={{ color: C.muted, fontSize: 12 }}>Caronas Mogi ↔ Campinas</div>
               <div style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>v1.0 · Preço por trecho: {R(PRICE)}</div>
               <div style={{ marginTop: 8, fontSize: 11, color: window.__db ? C.green : C.red }}>
-                {window.__db ? "☁️ Firebase conectado" : "⚠️ Firebase offline — dados só neste dispositivo"}
+                {window.__db ? t("opts_firebase_ok") : t("opts_firebase_off")}
               </div>
             </div>
           </div>
@@ -2070,13 +2445,14 @@
     // ═══════════════════════════════════════════
     //  BOTTOM NAV
     // ═══════════════════════════════════════════
-    function Nav({ tab, setTab }) {
+    function Nav({ tab, setTab, lang }) {
+      const t = mkT(lang || "pt");
       const items = [
-        { id: "home", icon: "🏠", label: "Início" },
-        { id: "add", icon: "➕", label: "Registrar" },
-        { id: "saldos", icon: "💰", label: "Saldos" },
-        { id: "hist", icon: "📅", label: "Histórico" },
-        { id: "opts", icon: "⚙️", label: "Opções" },
+        { id: "home", icon: "🏠", label: t("nav_home") },
+        { id: "add", icon: "➕", label: t("nav_add") },
+        { id: "saldos", icon: "💰", label: t("nav_extratos") },
+        { id: "hist", icon: "📅", label: t("nav_hist") },
+        { id: "opts", icon: "⚙️", label: t("nav_opts") },
       ];
     
       return (
@@ -2119,7 +2495,8 @@
       return hex === APP_PASS_HASH;
     }
     
-    function LockScreen({ onUnlock }) {
+    function LockScreen({ onUnlock, lang }) {
+      const t = mkT(lang || "pt");
       const [val, setVal] = useState("");
       const [err, setErr] = useState(false);
       const [shake, setShake] = useState(false);
@@ -2152,7 +2529,7 @@
               value={val}
               onChange={e => { setVal(e.target.value); setErr(false); }}
               onKeyDown={handleKey}
-              placeholder="Senha"
+              placeholder=t("opts_delete_pass_ph")
               autoFocus
               style={{
                 width: "100%", background: C.card,
@@ -2163,7 +2540,7 @@
                 fontFamily: "Barlow, sans-serif",
               }}
             />
-            {err && <div style={{ color: C.red, fontSize: 12, textAlign: "center", marginTop: 8 }}>Senha incorreta</div>}
+            {err && <div style={{ color: C.red, fontSize: 12, textAlign: "center", marginTop: 8 }}>{t("lock_wrong")}</div>}
             <button onClick={tryUnlock} style={{
               marginTop: 14, width: "100%",
               background: C.amber, color: "#000", border: "none",
@@ -2192,14 +2569,16 @@
     
       const upd = (newSt) => { setSt(newSt); saveData(newSt); };
     
-      if (!unlocked) return <LockScreen onUnlock={() => setUnlocked(true)} />;
+      if (!unlocked) return <LockScreen onUnlock={() => setUnlocked(true)} lang={localStorage.getItem("caroninhas-lang") || "pt"} />;
     
+      const appLang = st?.lang || localStorage.getItem("caroninhas-lang") || "pt";
+      const appT = mkT(appLang);
       if (!st) return (
         <div style={{ background: C.bg, height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Barlow, sans-serif" }}>
           <style>{GCSS}</style>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 44, marginBottom: 12 }}>🚗</div>
-            <div style={{ color: C.muted }}>Carregando…</div>
+            <div style={{ color: C.muted }}>{appT("loading")}</div>
           </div>
         </div>
       );
@@ -2214,7 +2593,7 @@
           {tab === "saldos" && <Saldos  st={st} upd={upd} />}
           {tab === "hist"   && <Hist    st={st} upd={upd} />}
           {tab === "opts"   && <Opcoes  st={st} upd={upd} />}
-          <Nav tab={tab} setTab={setTab} />
+          <Nav tab={tab} setTab={setTab} lang={st?.lang || "pt"} />
         </div>
       );
     }
