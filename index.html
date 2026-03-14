@@ -1764,6 +1764,9 @@
                       const iOweThem = net < 0;
                       const iOweTrips    = st.trips.filter(t => t.role === "passageiro" && t.driverId === dId && (scope === "all" || t.weekStart === thisWeek)).sort((a,b) => b.date.localeCompare(a.date));
                       const theyOweTrips = st.trips.filter(t => t.role === "motorista" && (scope === "all" || t.weekStart === thisWeek) && (t.passengers||[]).some(p => p.driverId === dId)).sort((a,b) => b.date.localeCompare(a.date));
+                      // "quitado com carona": my unpaid debt to this driver is cancelled
+                      // because net >= 0 (they owe me at least as much as I owe them)
+                      const isCancelledByRide = net >= 0;
                       const borderCol = isEven ? C.green + "44" : iOweThem ? C.red + "33" : C.amber + "33";
                       const isOpen = expanded[dId];
                       return (
@@ -1772,7 +1775,7 @@
                             <div>
                               <div style={{ fontSize: 16, color: C.text, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                                 {name}
-                                {isEven && <span style={{ background: C.green, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 5, padding: "2px 7px", letterSpacing: 0.5 }}>QUITES ✓</span>}
+                                {isEven && <span style={{ background: C.green, color: "#000", fontSize: 9, fontWeight: 700, borderRadius: 5, padding: "2px 7px", letterSpacing: 0.5 }}>{t("saldos_quites")}</span>}
                               </div>
                               {driver?.pix && (
                                 <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
@@ -1834,15 +1837,19 @@
                                   <div style={{ fontSize: 11, color: C.muted, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>{t("rode_with", name)}</div>
                                   {iOweTrips.map(tr => {
                                     const x = tr.direction === "ambas" ? 2 : 1;
+                                    const cancelled = !tr.paid && isCancelledByRide;
                                     return (
                                       <div key={tr.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
-                                        <div style={{ fontSize: 13, color: tr.paid ? C.muted : C.text }}>
+                                        <div style={{ fontSize: 13, color: (tr.paid || cancelled) ? C.muted : C.text }}>
                                           <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(tr.date, lang)}</span>{fmtFull(tr.date)} · {DIR(lang)[tr.direction]}
                                           {tr.paid && <span style={{ color: C.green, marginLeft: 6, fontSize: 11 }}>{t("paid_label_short")}</span>}
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: tr.paid ? C.muted : C.red }}>{R(tripPrice(tr) * x)}</span>
-                                          {!tr.paid && <button onClick={() => markPaid(tr.id)} style={btnGreen}>{t("extrato_pay")}</button>}
+                                          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: (tr.paid || cancelled) ? C.muted : C.red }}>{R(tripPrice(tr) * x)}</span>
+                                          {cancelled
+                                            ? <span style={{ background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, borderRadius: 7, padding: "4px 8px", fontSize: 10, fontWeight: 700, whiteSpace: "nowrap" }}>{t("trip_quitado")}</span>
+                                            : !tr.paid && <button onClick={() => markPaid(tr.id)} style={btnGreen}>{t("extrato_pay")}</button>
+                                          }
                                         </div>
                                       </div>
                                     );
@@ -1857,15 +1864,19 @@
                                     return pax.map(p => {
                                       const pm = paxMult(p, trip.direction);
                                       const pDir = p.direction || trip.direction;
+                                      const cancelled = !p.paid && isCancelledByRide;
                                       return (
                                         <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.dim}` }}>
-                                          <div style={{ fontSize: 13, color: p.paid ? C.muted : C.text }}>
+                                          <div style={{ fontSize: 13, color: (p.paid || cancelled) ? C.muted : C.text }}>
                                             <span style={{ color: C.amber, fontWeight: 600, marginRight: 4 }}>{weekday(trip.date, lang)}</span>{fmtFull(trip.date)} · {DIR(lang)[pDir]}
                                             {p.paid && <span style={{ color: C.green, marginLeft: 6, fontSize: 11 }}>{t("received_label_short")}</span>}
                                           </div>
                                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: p.paid ? C.muted : C.amber }}>{R(paxPrice(p) * pm)}</span>
-                                            {!p.paid && <button onClick={() => markPaxPaid(trip.id, p.id)} style={btnGreen}>{t("trip_received")}</button>}
+                                            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 16, color: (p.paid || cancelled) ? C.muted : C.amber }}>{R(paxPrice(p) * pm)}</span>
+                                            {cancelled
+                                              ? <span style={{ background: C.greenDim, border: `1px solid ${C.green}44`, color: C.green, borderRadius: 7, padding: "4px 8px", fontSize: 10, fontWeight: 700, whiteSpace: "nowrap" }}>{t("trip_quitado")}</span>
+                                              : !p.paid && <button onClick={() => markPaxPaid(trip.id, p.id)} style={btnGreen}>{t("trip_received")}</button>
+                                            }
                                           </div>
                                         </div>
                                       );
