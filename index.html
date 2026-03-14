@@ -514,36 +514,63 @@
     //  STORAGE
     // ═══════════════════════════════════════════
     async function loadData() {
+      // Helper: read from localStorage
+      const fromLocal = () => {
+        try {
+          const raw = localStorage.getItem(KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch { return null; }
+      };
+    
       if (window.__db) {
         try {
           console.log("[caronas] Loading from Firestore...");
           const snap = await window.__db.collection("caronas").doc(KEY).get();
           if (snap.exists) {
-            const data = snap.data().payload;
-            console.log("[caronas] Firestore OK, trips:", data.trips?.length);
-            localStorage.setItem(KEY, JSON.stringify(data));
-            return data;
+            const fsData = snap.data().payload;
+            const lsData = fromLocal();
+            // If localStorage has MORE trips than Firestore, it means a save to
+            // Firestore failed (race condition). Keep whichever has more trips.
+            if (lsData && Array.isArray(lsData.trips) && Array.isArray(fsData.trips)
+                && lsData.trips.length > fsData.trips.length) {
+              console.log("[caronas] localStorage is newer, saving it to Firestore...");
+              await window.__db.collection("caronas").doc(KEY).set({ payload: lsData });
+              return lsData;
+            }
+            console.log("[caronas] Firestore OK, trips:", fsData.trips?.length);
+            localStorage.setItem(KEY, JSON.stringify(fsData));
+            return fsData;
           }
-          console.log("[caronas] No Firestore doc yet");
+          console.log("[caronas] No Firestore doc yet, using localStorage");
         } catch(e) { console.error("[caronas] Firestore load ERROR:", e); }
       } else {
         console.warn("[caronas] Firebase not ready");
       }
-      try {
-        const raw = localStorage.getItem(KEY);
-        if (raw) console.log("[caronas] Using localStorage fallback");
-        return raw ? JSON.parse(raw) : null;
-      } catch { return null; }
+      const local = fromLocal();
+      if (local) console.log("[caronas] Using localStorage, trips:", local.trips?.length);
+      return local;
     }
     async function saveData(d) {
+      // Always save to localStorage first (instant, never fails)
       try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {}
       if (window.__db) {
         try {
           await window.__db.collection("caronas").doc(KEY).set({ payload: d });
-          console.log("[caronas] Saved to Firestore OK");
-        } catch(e) { console.error("[caronas] Firestore save ERROR:", e); }
+          console.log("[caronas] Saved to Firestore OK, trips:", d.trips?.length);
+        } catch(e) {
+          console.error("[caronas] Firestore save ERROR (data kept in localStorage):", e);
+        }
       } else {
-        console.warn("[caronas] Firebase not ready — saved only to localStorage");
+        // Firebase not ready yet — retry once after 3 seconds
+        console.warn("[caronas] Firebase not ready — retrying save in 3s...");
+        setTimeout(async () => {
+          if (window.__db) {
+            try {
+              await window.__db.collection("caronas").doc(KEY).set({ payload: d });
+              console.log("[caronas] Retry save to Firestore OK");
+            } catch(e) { console.error("[caronas] Retry save ERROR:", e); }
+          }
+        }, 3000);
       }
     }
     
